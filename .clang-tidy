@@ -1,0 +1,7 @@
+---
+Checks:	'-*,bugprone-branch-clone,bugprone-infinite-loop,bugprone-redundant-branch-condition,readability-braces-around-statements,readability-duplicate-include,readability-function-cognitive-complexity,readability-function-size,-readability-magic-numbers,readability-qualified-auto,readability-simplify-boolean-expr,readability-use-anyofallof,readability-else-after-return,modernize-use-override,modernize-use-auto,modernize-use-nullptr,performance-for-range-copy,performance-implicit-conversion-in-loop,performance-unnecessary-value-param'
+WarningsAsErrors: false
+HeaderFilterRegex: ''
+CheckOptions:
+  - key:             readability-function-cognitive-complexity.Threshold
+    value:           75
