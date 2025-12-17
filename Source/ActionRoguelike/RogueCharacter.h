@@ -30,6 +30,9 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "PrimaryAttack")
     FName MuzzleSocketName;
     
+    UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
+    TObjectPtr<UAnimMontage> AttackMontage;
+    
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_Move;
 	
@@ -53,6 +56,9 @@ protected:
     void Look(const FInputActionInstance& InValue);
     
     void PrimaryAttack();
+    
+    void AttackTimerElapsed();
+    
 public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
