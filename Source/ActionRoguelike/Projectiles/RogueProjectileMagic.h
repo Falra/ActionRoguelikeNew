@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "RogueProjectileMagic.generated.h"
 
+class UNiagaraSystem;
 class UProjectileMovementComponent;
 class USphereComponent;
 class UNiagaraComponent;
@@ -19,15 +20,23 @@ public:
     // Sets default values for this actor's properties
     ARogueProjectileMagic();
 
+    virtual void PostInitializeComponents() override;
+    
 protected:
     
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<USphereComponent> SphereComponent;
     
-    UPROPERTY(EditDefaultsOnly, Category="Components")
+    UPROPERTY(EditDefaultsOnly, Category = "Components")
     TObjectPtr<UNiagaraComponent> LoopedNiagaraComponent;
     
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Effects")
+    TObjectPtr<UNiagaraSystem> ExplosionEffect;
+    
+    UFUNCTION()
+    void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, 
+        FVector NormalImpulse, const FHitResult& Hit);
 };
