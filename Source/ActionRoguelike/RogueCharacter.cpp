@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Projectiles/RogueProjectileMagic.h"
 
 
 // Sets default values
@@ -20,6 +21,8 @@ ARogueCharacter::ARogueCharacter()
     
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
     CameraComponent->SetupAttachment(SpringArmComponent);
+    
+    MuzzleSocketName = "Muzzle_01";
 }
 
 // Called when the game starts or when spawned
@@ -52,6 +55,17 @@ void ARogueCharacter::Look(const FInputActionInstance& InValue)
     AddControllerYawInput(InputValue.X);
 }
 
+void ARogueCharacter::PrimaryAttack()
+{
+    const FVector SpawnLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
+    const FRotator SpawnRotation = GetControlRotation();
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.Instigator = this;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+}
+
 // Called every frame
 void ARogueCharacter::Tick(float DeltaTime)
 {
@@ -72,5 +86,7 @@ void ARogueCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     
     EnhancedInput->BindAction(Input_Move, ETriggerEvent::Triggered, this, &ARogueCharacter::Move);
     EnhancedInput->BindAction(Input_Look, ETriggerEvent::Triggered, this, &ARogueCharacter::Look);
+    
+    EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this, &ARogueCharacter::PrimaryAttack);
 }
 

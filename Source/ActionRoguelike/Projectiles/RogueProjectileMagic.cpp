@@ -29,6 +29,8 @@ void ARogueProjectileMagic::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
     
+    SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+    
     SphereComponent->OnComponentHit.AddDynamic(this, &ThisClass::OnActorHit);
 }
 
