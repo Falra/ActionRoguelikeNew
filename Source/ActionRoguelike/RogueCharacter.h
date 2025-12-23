@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "RogueCharacter.generated.h"
 
+class UNiagaraSystem;
 class ARogueProjectileMagic;
 struct FInputActionInstance;
 struct FInputActionValue;
@@ -23,6 +24,12 @@ public:
     ARogueCharacter();
 
 protected:
+    
+    UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
+    TObjectPtr<UNiagaraSystem> CastingEffect;
+
+    UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
+    TObjectPtr<USoundBase> CastingSound;
     
     UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
     TSubclassOf<ARogueProjectileMagic> ProjectileClass;

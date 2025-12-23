@@ -24,6 +24,9 @@ public:
     
 protected:
     
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    TSubclassOf<UDamageType> DmgTypeClass;
+    
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<USphereComponent> SphereComponent;
     
@@ -33,8 +36,14 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Components")
+    TObjectPtr<UAudioComponent> LoopedAudioComponent;
+    
     UPROPERTY(EditDefaultsOnly, Category = "Effects")
     TObjectPtr<UNiagaraSystem> ExplosionEffect;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Sound")
+    TObjectPtr<USoundBase> ExplosionSound;
     
     UFUNCTION()
     void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, 

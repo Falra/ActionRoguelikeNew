@@ -4,6 +4,10 @@
 # Rider
 .idea/
 
+# ReSharper and Rider user-specific settings
+*.DotSettings.user
+.idea/workspace.xml
+
 # Compiled Object files
 *.slo
 *.lo
