@@ -12,6 +12,9 @@ public class ActionRoguelike : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput", "Niagara" });
 
+		// Add your new public include folder path here:
+		PublicIncludePaths.AddRange(new string[] { "ActionRoguelike" });
+		
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		
