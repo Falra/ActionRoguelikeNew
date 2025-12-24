@@ -46,6 +46,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_Look;
     
+    UPROPERTY(EditDefaultsOnly, Category="Input")
+    TObjectPtr<UInputAction> Input_Jump;
+    
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_PrimaryAttack;
     
