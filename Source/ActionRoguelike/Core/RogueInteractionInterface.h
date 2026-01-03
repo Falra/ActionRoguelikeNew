@@ -23,5 +23,6 @@ class ACTIONROGUELIKE_API IRogueInteractionInterface
     // Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-    virtual void Interact() PURE_VIRTUAL(IRogueInteractionInterface::Interact);
+    UFUNCTION(BlueprintNativeEvent)
+    void Interact();
 };
