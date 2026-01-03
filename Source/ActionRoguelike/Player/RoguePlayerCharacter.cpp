@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RogueCharacter.h"
+#include "RoguePlayerCharacter.h"
 
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
@@ -12,7 +12,7 @@
 
 
 // Sets default values
-ARogueCharacter::ARogueCharacter()
+ARoguePlayerCharacter::ARoguePlayerCharacter()
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -28,13 +28,13 @@ ARogueCharacter::ARogueCharacter()
 }
 
 // Called when the game starts or when spawned
-void ARogueCharacter::BeginPlay()
+void ARoguePlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
     
 }
 
-void ARogueCharacter::Move(const FInputActionValue& InValue)
+void ARoguePlayerCharacter::Move(const FInputActionValue& InValue)
 {
     const FVector2D InputValue = InValue.Get<FVector2D>();
 
@@ -49,7 +49,7 @@ void ARogueCharacter::Move(const FInputActionValue& InValue)
     AddMovementInput(RightDirection, InputValue.Y);
 }
 
-void ARogueCharacter::Look(const FInputActionInstance& InValue)
+void ARoguePlayerCharacter::Look(const FInputActionInstance& InValue)
 {
     const FVector2D InputValue = InValue.GetValue().Get<FVector2D>();
 	
@@ -57,7 +57,7 @@ void ARogueCharacter::Look(const FInputActionInstance& InValue)
     AddControllerYawInput(InputValue.X);
 }
 
-void ARogueCharacter::PrimaryAttack()
+void ARoguePlayerCharacter::PrimaryAttack()
 {
     PlayAnimMontage(AttackMontage);
     
@@ -72,7 +72,7 @@ void ARogueCharacter::PrimaryAttack()
     GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &ThisClass::AttackTimerElapsed, AttackDelayTime);
 }
 
-void ARogueCharacter::AttackTimerElapsed()
+void ARoguePlayerCharacter::AttackTimerElapsed()
 {
     const FVector SpawnLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
     const FRotator SpawnRotation = GetControlRotation();
@@ -85,14 +85,14 @@ void ARogueCharacter::AttackTimerElapsed()
 }
 
 // Called every frame
-void ARogueCharacter::Tick(float DeltaTime)
+void ARoguePlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
 }
 
 // Called to bind functionality to input
-void ARogueCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ARoguePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -102,10 +102,10 @@ void ARogueCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
         return;
     }
     
-    EnhancedInput->BindAction(Input_Move, ETriggerEvent::Triggered, this, &ARogueCharacter::Move);
-    EnhancedInput->BindAction(Input_Look, ETriggerEvent::Triggered, this, &ARogueCharacter::Look);
+    EnhancedInput->BindAction(Input_Move, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::Move);
+    EnhancedInput->BindAction(Input_Look, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::Look);
     
-    EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this, &ARogueCharacter::PrimaryAttack);
-    EnhancedInput->BindAction(Input_Jump, ETriggerEvent::Triggered, this, &ARogueCharacter::Jump);
+    EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::PrimaryAttack);
+    EnhancedInput->BindAction(Input_Jump, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::Jump);
 }
 
