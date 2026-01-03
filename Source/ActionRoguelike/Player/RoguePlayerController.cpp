@@ -3,9 +3,23 @@
 
 #include "RoguePlayerController.h"
 
+#include "EnhancedInputComponent.h"
 #include "RogueInteractionComponent.h"
 
 ARoguePlayerController::ARoguePlayerController()
 {
     InteractionComponent = CreateDefaultSubobject<URogueInteractionComponent>(TEXT("InteractionComponent"));
+}
+
+void ARoguePlayerController::StartInteract()
+{
+    InteractionComponent->Interact();
+}
+
+void ARoguePlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+    
+    UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
+    EnhancedInput->BindAction(Input_Interact, ETriggerEvent::Triggered, this, &ARoguePlayerController::StartInteract);
 }

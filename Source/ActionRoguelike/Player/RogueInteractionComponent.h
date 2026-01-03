@@ -17,8 +17,14 @@ public:
 
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     
+    void Interact() const;
+    
 protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Interaction")
     float InteractionRadius = 800;
+    
+    UPROPERTY(Transient)
+    TObjectPtr<AActor> SelectedActor;
+
 };
