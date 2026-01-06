@@ -3,16 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "RogueProjectile.h"
 #include "RogueProjectileMagic.generated.h"
 
 class UNiagaraSystem;
-class UProjectileMovementComponent;
-class USphereComponent;
 class UNiagaraComponent;
 
 UCLASS(Abstract)
-class ACTIONROGUELIKE_API ARogueProjectileMagic : public AActor
+class ACTIONROGUELIKE_API ARogueProjectileMagic : public ARogueProjectile
 {
     GENERATED_BODY()
 
@@ -27,15 +25,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     TSubclassOf<UDamageType> DmgTypeClass;
     
-    UPROPERTY(VisibleAnywhere, Category = "Components")
-    TObjectPtr<USphereComponent> SphereComponent;
-    
     UPROPERTY(EditDefaultsOnly, Category = "Components")
     TObjectPtr<UNiagaraComponent> LoopedNiagaraComponent;
     
-    UPROPERTY(VisibleAnywhere, Category = "Components")
-    TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
-
     UPROPERTY(EditDefaultsOnly, Category = "Components")
     TObjectPtr<UAudioComponent> LoopedAudioComponent;
     
