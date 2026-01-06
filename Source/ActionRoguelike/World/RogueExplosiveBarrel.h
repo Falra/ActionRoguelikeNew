@@ -44,6 +44,7 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<URadialForceComponent> RadialForceComponent;
 
+    UFUNCTION(BlueprintCallable, Category = "Explosive Barrel")
     void Explode();
 
     bool bExploded = false;
