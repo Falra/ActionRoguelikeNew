@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "RoguePlayerCharacter.generated.h"
 
+class URogueActionSystemComponent;
 class ARogueProjectile;
 class UNiagaraSystem;
 struct FInputActionInstance;
@@ -24,13 +25,12 @@ public:
     ARoguePlayerCharacter();
 
 protected:
-    
     UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
     TObjectPtr<UNiagaraSystem> CastingEffect;
 
     UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
     TObjectPtr<USoundBase> CastingSound;
-    
+
     UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
     TSubclassOf<ARogueProjectile> PrimaryAttackProjectileClass;
 
@@ -42,45 +42,48 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "PrimaryAttack")
     FName MuzzleSocketName;
-    
+
     UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
     TObjectPtr<UAnimMontage> AttackMontage;
-    
+
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_Move;
-	
+
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_Look;
-    
+
     UPROPERTY(EditDefaultsOnly, Category="Input")
     TObjectPtr<UInputAction> Input_Jump;
-    
+
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_PrimaryAttack;
-    
+
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_SecondaryAttack;
-	
+
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_SpecialAttack;
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<UCameraComponent> CameraComponent;
-    
+
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<USpringArmComponent> SpringArmComponent;
-    
+
+    UPROPERTY(VisibleAnywhere, Category="Components")
+    TObjectPtr<URogueActionSystemComponent> ActionSystemComponent;
+
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
     void Move(const FInputActionValue& InValue);
-    
+
     void Look(const FInputActionInstance& InValue);
-    
+
     void StartProjectileAttack(TSubclassOf<ARogueProjectile> ProjectileClass);
-    
+
     void AttackTimerElapsed(TSubclassOf<ARogueProjectile> ProjectileClass);
-    
+
 public:
     // Called every frame
     virtual void Tick(float DeltaTime) override;
@@ -88,5 +91,7 @@ public:
     // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+    virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,
+        AActor* DamageCauser) override;
 
 };

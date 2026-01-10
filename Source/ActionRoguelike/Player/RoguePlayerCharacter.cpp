@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "ActionSystem/RogueActionSystemComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Projectiles/RogueProjectileMagic.h"
@@ -23,6 +24,8 @@ ARoguePlayerCharacter::ARoguePlayerCharacter()
     
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
     CameraComponent->SetupAttachment(SpringArmComponent);
+    
+    ActionSystemComponent = CreateDefaultSubobject<URogueActionSystemComponent>(TEXT("ActionSystemComp"));
     
     MuzzleSocketName = "Muzzle_01";
 }
@@ -116,5 +119,15 @@ void ARoguePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
         &ThisClass::StartProjectileAttack, SecondaryAttackProjectileClass);
     EnhancedInput->BindAction(Input_SpecialAttack, ETriggerEvent::Triggered, this,
         &ThisClass::StartProjectileAttack, SpecialAttackProjectileClass);
+}
+
+float ARoguePlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,
+    AActor* DamageCauser)
+{
+    float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
+    ActionSystemComponent->ApplyHealthChange(-ActualDamage);
+
+    return ActualDamage;
 }
 
