@@ -57,22 +57,24 @@ void ARoguePlayerCharacter::Look(const FInputActionInstance& InValue)
     AddControllerYawInput(InputValue.X);
 }
 
-void ARoguePlayerCharacter::PrimaryAttack()
+void ARoguePlayerCharacter::StartProjectileAttack(TSubclassOf<ARogueProjectile> ProjectileClass)
 {
     PlayAnimMontage(AttackMontage);
-    
-    FTimerHandle AttackTimerHandle;
-    constexpr float AttackDelayTime = 0.2f;
     
     UNiagaraFunctionLibrary::SpawnSystemAttached(CastingEffect, GetMesh(), MuzzleSocketName,
         FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::SnapToTarget, true);
 
     UGameplayStatics::PlaySound2D(this, CastingSound);
     
-    GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &ThisClass::AttackTimerElapsed, AttackDelayTime);
+    FTimerHandle AttackTimerHandle;
+    constexpr float AttackDelayTime = 0.2f;
+    // Passing in the projectile as the parameter
+    FTimerDelegate Delegate;
+    Delegate.BindUObject(this, &ARoguePlayerCharacter::AttackTimerElapsed, ProjectileClass);
+    GetWorldTimerManager().SetTimer(AttackTimerHandle, Delegate, AttackDelayTime, false);
 }
 
-void ARoguePlayerCharacter::AttackTimerElapsed()
+void ARoguePlayerCharacter::AttackTimerElapsed(TSubclassOf<ARogueProjectile> ProjectileClass)
 {
     const FVector SpawnLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
     const FRotator SpawnRotation = GetControlRotation();
@@ -105,7 +107,14 @@ void ARoguePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     EnhancedInput->BindAction(Input_Move, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::Move);
     EnhancedInput->BindAction(Input_Look, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::Look);
     
-    EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::PrimaryAttack);
     EnhancedInput->BindAction(Input_Jump, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::Jump);
+    
+    // Projectile Attacks
+    EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this,
+        &ThisClass::StartProjectileAttack, PrimaryAttackProjectileClass);
+    EnhancedInput->BindAction(Input_SecondaryAttack, ETriggerEvent::Triggered, this,
+        &ThisClass::StartProjectileAttack, SecondaryAttackProjectileClass);
+    EnhancedInput->BindAction(Input_SpecialAttack, ETriggerEvent::Triggered, this,
+        &ThisClass::StartProjectileAttack, SpecialAttackProjectileClass);
 }
 

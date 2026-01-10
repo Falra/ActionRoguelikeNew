@@ -6,8 +6,8 @@
 #include "GameFramework/Character.h"
 #include "RoguePlayerCharacter.generated.h"
 
+class ARogueProjectile;
 class UNiagaraSystem;
-class ARogueProjectileMagic;
 struct FInputActionInstance;
 struct FInputActionValue;
 class UInputAction;
@@ -32,7 +32,13 @@ protected:
     TObjectPtr<USoundBase> CastingSound;
     
     UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
-    TSubclassOf<ARogueProjectileMagic> ProjectileClass;
+    TSubclassOf<ARogueProjectile> PrimaryAttackProjectileClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
+    TSubclassOf<ARogueProjectile> SecondaryAttackProjectileClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "PrimaryAttack")
+    TSubclassOf<ARogueProjectile> SpecialAttackProjectileClass;
 
     UPROPERTY(VisibleAnywhere, Category = "PrimaryAttack")
     FName MuzzleSocketName;
@@ -52,6 +58,12 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_PrimaryAttack;
     
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputAction> Input_SecondaryAttack;
+	
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputAction> Input_SpecialAttack;
+
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<UCameraComponent> CameraComponent;
     
@@ -65,9 +77,9 @@ protected:
     
     void Look(const FInputActionInstance& InValue);
     
-    void PrimaryAttack();
+    void StartProjectileAttack(TSubclassOf<ARogueProjectile> ProjectileClass);
     
-    void AttackTimerElapsed();
+    void AttackTimerElapsed(TSubclassOf<ARogueProjectile> ProjectileClass);
     
 public:
     // Called every frame
