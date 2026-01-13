@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "ActionSystem/RogueActionSystemComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Projectiles/RogueProjectileMagic.h"
@@ -28,13 +29,6 @@ ARoguePlayerCharacter::ARoguePlayerCharacter()
     ActionSystemComponent = CreateDefaultSubobject<URogueActionSystemComponent>(TEXT("ActionSystemComp"));
     
     MuzzleSocketName = "Muzzle_01";
-}
-
-// Called when the game starts or when spawned
-void ARoguePlayerCharacter::BeginPlay()
-{
-    Super::BeginPlay();
-    
 }
 
 void ARoguePlayerCharacter::Move(const FInputActionValue& InValue)
@@ -89,11 +83,24 @@ void ARoguePlayerCharacter::AttackTimerElapsed(TSubclassOf<ARogueProjectile> Pro
     MoveIgnoreActorAdd(NewProjectile);
 }
 
-// Called every frame
-void ARoguePlayerCharacter::Tick(float DeltaTime)
+void ARoguePlayerCharacter::OnHealthChanged(float NewHealth, float OldHealth)
 {
-    Super::Tick(DeltaTime);
+    // Died?
+    if (FMath::IsNearlyZero(NewHealth))
+    {
+        DisableInput(nullptr);
 
+        GetMovementComponent()->StopMovementImmediately();
+
+        PlayAnimMontage(DeathMontage);
+    }
+}
+
+void ARoguePlayerCharacter::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    ActionSystemComponent->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
 }
 
 // Called to bind functionality to input
