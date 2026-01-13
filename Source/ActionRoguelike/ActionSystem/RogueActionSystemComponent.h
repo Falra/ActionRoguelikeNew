@@ -7,6 +7,8 @@
 #include "RogueActionSystemComponent.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, OldHealth);
+
 USTRUCT(BlueprintType)
 struct FRogueAttributeSet
 {
@@ -29,6 +31,9 @@ public:
 
     void ApplyHealthChange(float InValueChange);
 
+    UPROPERTY(BlueprintAssignable)
+    FOnHealthChanged OnHealthChanged;
+    
 protected:
 
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
