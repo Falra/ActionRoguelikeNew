@@ -7,6 +7,10 @@
 #include "Core/RogueInteractionInterface.h"
 #include "Engine/OverlapResult.h"
 
+TAutoConsoleVariable<bool> CVarInteractionDebugDrawing(TEXT("game.interaction.DebugDraw"), false,
+    TEXT("Enable interaction component debug rendering. (0 = off, 1 = enabled)"),
+    ECVF_Cheat);
+
 
 URogueInteractionComponent::URogueInteractionComponent()
 {
@@ -30,6 +34,7 @@ void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
     AActor* BestActor = nullptr;
     float HighestDotResult = -1.0;
+    bool bEnabledDebugDraw = CVarInteractionDebugDrawing.GetValueOnGameThread();
     const FVector CameraDirection = PC->GetControlRotation().Vector();
         
     for (FOverlapResult& Overlap : Overlaps)
@@ -45,18 +50,24 @@ void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickT
             HighestDotResult = DotResult;
         }
         
-        DrawDebugBox(GetWorld(), OverlapLocation, FVector(50.0f), FColor::Red);
-        FString DebugString = FString::Printf(TEXT("Dot: %f"), DotResult);
-        DrawDebugString(GetWorld(), OverlapLocation, DebugString, nullptr, FColor::White, 0.0f, true);
+        if (bEnabledDebugDraw)
+        {
+            DrawDebugBox(GetWorld(), OverlapLocation, FVector(50.0f), FColor::Red);
+            FString DebugString = FString::Printf(TEXT("Dot: %f"), DotResult);
+            DrawDebugString(GetWorld(), OverlapLocation, DebugString, nullptr, FColor::White, 0.0f, true);
+        }
     }
 
     SelectedActor = BestActor;
-    if (BestActor)
+    if (bEnabledDebugDraw)
     {
-        DrawDebugBox(GetWorld(), BestActor->GetActorLocation(), FVector(60.0f), FColor::Green);
-    }
+        if (BestActor)
+        {
+            DrawDebugBox(GetWorld(), BestActor->GetActorLocation(), FVector(60.0f), FColor::Green);
+        }
     
-    DrawDebugSphere(GetWorld(), Center, InteractionRadius, 32, FColor::White);
+        DrawDebugSphere(GetWorld(), Center, InteractionRadius, 32, FColor::White);
+    }
 }
 
 void URogueInteractionComponent::Interact() const
