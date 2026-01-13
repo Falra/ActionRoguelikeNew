@@ -7,11 +7,15 @@
 #include "RogueActionSystemComponent.generated.h"
 
 
+USTRUCT(BlueprintType)
 struct FRogueAttributeSet
 {
+    GENERATED_BODY()
+    
     FRogueAttributeSet()
         : Health(100.0f) {}
 	
+    UPROPERTY(BlueprintReadOnly)
     float Health;
 };
 
@@ -27,5 +31,6 @@ public:
 
 protected:
 
+    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FRogueAttributeSet Attributes;
 };
