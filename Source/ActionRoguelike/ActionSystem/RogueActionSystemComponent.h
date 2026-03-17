@@ -15,10 +15,13 @@ struct FRogueAttributeSet
     GENERATED_BODY()
     
     FRogueAttributeSet()
-        : Health(100.0f) {}
+        : Health(100.0f), HealthMax(100.0f) {}
 	
     UPROPERTY(BlueprintReadOnly)
     float Health;
+    
+    UPROPERTY(BlueprintReadOnly)
+    float HealthMax;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -30,6 +33,8 @@ public:
     URogueActionSystemComponent();
 
     void ApplyHealthChange(float InValueChange);
+
+    bool IsFullHealth() const;
 
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
