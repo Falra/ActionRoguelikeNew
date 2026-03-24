@@ -16,6 +16,8 @@ class ACTIONROGUELIKE_API URogueBTTask_RangedAttack : public UBTTaskNode
 {
     GENERATED_BODY()
 	
+    URogueBTTask_RangedAttack();
+    
     UPROPERTY(EditAnywhere, Category = "AI")
     FBlackboardKeySelector TargetActorKey;
 

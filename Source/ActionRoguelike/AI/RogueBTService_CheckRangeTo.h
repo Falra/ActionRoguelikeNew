@@ -14,6 +14,8 @@ class ACTIONROGUELIKE_API URogueBTService_CheckRangeTo : public UBTService
 {
     GENERATED_BODY()
 
+    URogueBTService_CheckRangeTo();
+    
     UPROPERTY(EditAnywhere, Category = "AI")
     FBlackboardKeySelector TargetActorKey;
 
