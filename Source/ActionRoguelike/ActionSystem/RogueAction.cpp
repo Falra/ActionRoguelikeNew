@@ -3,6 +3,13 @@
 
 #include "RogueAction.h"
 
+#include "RogueActionSystemComponent.h"
+
+URogueActionSystemComponent* URogueAction::GetOwningComponent() const
+{
+    return Cast<URogueActionSystemComponent>(GetOuter());
+}
+
 void URogueAction::StartAction()
 {
     float GameTime = 0.0f;

@@ -5,18 +5,9 @@
 
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
-#include "NiagaraFunctionLibrary.h"
-#include "ActionRoguelike/RogueGameTypes.h"
 #include "ActionSystem/RogueActionSystemComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Projectiles/RogueProjectileMagic.h"
-
-
-TAutoConsoleVariable<float> CVarProjectileAdjustmentDebugDrawing(TEXT("game.projectile.DebugDraw"), 0.0f,
-    TEXT("Enable projectile aim adjustment debug rendering. (0 = off, > 0 is duration)"),
-    ECVF_Cheat);
 
 // Sets default values
 ARoguePlayerCharacter::ARoguePlayerCharacter()
@@ -32,8 +23,6 @@ ARoguePlayerCharacter::ARoguePlayerCharacter()
     CameraComponent->SetupAttachment(SpringArmComponent);
     
     ActionSystemComponent = CreateDefaultSubobject<URogueActionSystemComponent>(TEXT("ActionSystemComp"));
-    
-    MuzzleSocketName = "Muzzle_01";
 }
 
 void ARoguePlayerCharacter::Move(const FInputActionValue& InValue)
@@ -57,77 +46,6 @@ void ARoguePlayerCharacter::Look(const FInputActionInstance& InValue)
 	
     AddControllerPitchInput(InputValue.Y);
     AddControllerYawInput(InputValue.X);
-}
-
-void ARoguePlayerCharacter::StartProjectileAttack(TSubclassOf<ARogueProjectile> ProjectileClass)
-{
-    PlayAnimMontage(AttackMontage);
-    
-    UNiagaraFunctionLibrary::SpawnSystemAttached(CastingEffect, GetMesh(), MuzzleSocketName,
-        FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::SnapToTarget, true);
-
-    UGameplayStatics::PlaySound2D(this, CastingSound);
-    
-    FTimerHandle AttackTimerHandle;
-    constexpr float AttackDelayTime = 0.2f;
-    // Passing in the projectile as the parameter
-    FTimerDelegate Delegate;
-    Delegate.BindUObject(this, &ARoguePlayerCharacter::AttackTimerElapsed, ProjectileClass);
-    GetWorldTimerManager().SetTimer(AttackTimerHandle, Delegate, AttackDelayTime, false);
-}
-
-void ARoguePlayerCharacter::AttackTimerElapsed(TSubclassOf<ARogueProjectile> ProjectileClass)
-{
-    const FVector SpawnLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
-    const FVector EyeLocation = CameraComponent->GetComponentLocation();
-    const FRotator EyeRotation = GetControlRotation();
-
-    const FVector TraceEnd = EyeLocation + (EyeRotation.Vector() * 5000.0f);
-
-    FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this);
-
-    UWorld* World = GetWorld();
-
-    FVector AdjustTargetLocation;
-    FHitResult Hit;
-    if (World->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_PROJECTILE, QueryParams))
-    {
-        AdjustTargetLocation = Hit.Location;
-    }
-    else
-    {
-        AdjustTargetLocation = TraceEnd;
-    }
-
-    const FRotator SpawnRotation = (AdjustTargetLocation - SpawnLocation).Rotation();
-
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.Instigator = this;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    
-    AActor* NewProjectile = World->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
-
-    MoveIgnoreActorAdd(NewProjectile);
-    
-#if !UE_BUILD_SHIPPING
-    const float DebugDrawDuration = CVarProjectileAdjustmentDebugDrawing.GetValueOnGameThread();
-    if (DebugDrawDuration > 0.0f)
-    {
-        // the hit location or trace end
-        DrawDebugBox(World, AdjustTargetLocation, FVector(20.0f), FColor::Green, false, DebugDrawDuration);
-
-        // adjustment line trace
-        DrawDebugLine(World, EyeLocation, TraceEnd, FColor::Green, false, DebugDrawDuration);
-
-        // New projectile path
-        DrawDebugLine(World, SpawnLocation, AdjustTargetLocation, FColor::Yellow, false, DebugDrawDuration);
-
-        // the original path of the projectile
-        DrawDebugLine(World, SpawnLocation, SpawnLocation + (GetControlRotation().Vector() * 5000.0f), FColor::Purple,
-            false, DebugDrawDuration);
-    }
-#endif
 }
 
 void ARoguePlayerCharacter::StartAction(FName InActionName)
@@ -175,9 +93,9 @@ void ARoguePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this,
         &ThisClass::StartAction, FName("PrimaryAttack"));
     EnhancedInput->BindAction(Input_SecondaryAttack, ETriggerEvent::Triggered, this,
-        &ThisClass::StartProjectileAttack, SecondaryAttackProjectileClass);
+        &ThisClass::StartAction, FName("SecondaryAttack"));
     EnhancedInput->BindAction(Input_SpecialAttack, ETriggerEvent::Triggered, this,
-        &ThisClass::StartProjectileAttack, SpecialAttackProjectileClass);
+        &ThisClass::StartAction, FName("SpecialAttack"));
 }
 
 float ARoguePlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,

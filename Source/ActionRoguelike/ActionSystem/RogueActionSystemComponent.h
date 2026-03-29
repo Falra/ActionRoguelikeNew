@@ -45,6 +45,8 @@ public:
     
     virtual void InitializeComponent() override;
     
+    void GrantAction(TSubclassOf<URogueAction> NewActionClass);
+    
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
     
@@ -52,6 +54,9 @@ protected:
 
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FRogueAttributeSet Attributes;
+
+    UPROPERTY(EditAnywhere, Category = "Actions")
+    TArray<TSubclassOf<URogueAction>> DefaultActions;
     
     UPROPERTY()
     TArray<TObjectPtr<URogueAction>> Actions;
