@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "RogueActionSystemComponent.generated.h"
 
+class URogueAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, OldHealth);
 
@@ -40,6 +41,10 @@ public:
 
     float GetHealthMax() const { return Attributes.HealthMax; }
     
+    void StartAction(const FName& InActionName);
+    
+    virtual void InitializeComponent() override;
+    
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
     
@@ -47,4 +52,7 @@ protected:
 
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FRogueAttributeSet Attributes;
+    
+    UPROPERTY()
+    TArray<TObjectPtr<URogueAction>> Actions;
 };

@@ -3,9 +3,20 @@
 
 #include "RogueActionSystemComponent.h"
 
+#include "RogueAction.h"
+
 
 URogueActionSystemComponent::URogueActionSystemComponent()
 {
+    bWantsInitializeComponent = true;
+}
+
+void URogueActionSystemComponent::InitializeComponent()
+{
+    Super::InitializeComponent();
+    
+    URogueAction* NewAction = NewObject<URogueAction>(this, URogueAction::StaticClass());
+    Actions.Add(NewAction);
 }
 
 void URogueActionSystemComponent::ApplyHealthChange(float InValueChange)
@@ -24,4 +35,18 @@ void URogueActionSystemComponent::ApplyHealthChange(float InValueChange)
 bool URogueActionSystemComponent::IsFullHealth() const
 {
     return FMath::IsNearlyEqual(Attributes.HealthMax, Attributes.Health);
+}
+
+void URogueActionSystemComponent::StartAction(const FName& InActionName)
+{
+    for (const auto& Action : Actions)
+    {
+        if (Action->GetActionName() == InActionName)
+        {
+            Action->StartAction();
+            return;
+        }
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("No Action found with name %s"), *InActionName.ToString());
 }

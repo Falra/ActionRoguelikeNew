@@ -130,6 +130,11 @@ void ARoguePlayerCharacter::AttackTimerElapsed(TSubclassOf<ARogueProjectile> Pro
 #endif
 }
 
+void ARoguePlayerCharacter::StartAction(FName InActionName)
+{
+    ActionSystemComponent->StartAction(InActionName);
+}
+
 void ARoguePlayerCharacter::OnHealthChanged(float NewHealth, float OldHealth)
 {
     // Died?
@@ -168,7 +173,7 @@ void ARoguePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     
     // Projectile Attacks
     EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this,
-        &ThisClass::StartProjectileAttack, PrimaryAttackProjectileClass);
+        &ThisClass::StartAction, FName("PrimaryAttack"));
     EnhancedInput->BindAction(Input_SecondaryAttack, ETriggerEvent::Triggered, this,
         &ThisClass::StartProjectileAttack, SecondaryAttackProjectileClass);
     EnhancedInput->BindAction(Input_SpecialAttack, ETriggerEvent::Triggered, this,

@@ -84,6 +84,8 @@ protected:
 
     void AttackTimerElapsed(TSubclassOf<ARogueProjectile> ProjectileClass);
 
+    void StartAction(FName InActionName);
+    
     UFUNCTION()
     void OnHealthChanged(float NewHealth, float OldHealth);
     
