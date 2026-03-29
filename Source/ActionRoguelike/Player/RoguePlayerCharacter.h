@@ -45,6 +45,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> Input_SpecialAttack;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputAction> Input_Sprint;
+    
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<UCameraComponent> CameraComponent;
 
@@ -59,6 +62,8 @@ protected:
     void Look(const FInputActionInstance& InValue);
 
     void StartAction(FName InActionName);
+    
+    void StopAction(FName InActionName);
     
     UFUNCTION()
     void OnHealthChanged(float NewHealth, float OldHealth);

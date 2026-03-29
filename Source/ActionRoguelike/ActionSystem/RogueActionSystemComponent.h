@@ -43,6 +43,8 @@ public:
     
     void StartAction(const FName& InActionName);
     
+    void StopAction(const FName& InActionName);
+    
     virtual void InitializeComponent() override;
     
     void GrantAction(TSubclassOf<URogueAction> NewActionClass);

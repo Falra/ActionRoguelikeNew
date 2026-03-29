@@ -53,6 +53,11 @@ void ARoguePlayerCharacter::StartAction(FName InActionName)
     ActionSystemComponent->StartAction(InActionName);
 }
 
+void ARoguePlayerCharacter::StopAction(FName InActionName)
+{
+    ActionSystemComponent->StopAction(InActionName);
+}
+
 void ARoguePlayerCharacter::OnHealthChanged(float NewHealth, float OldHealth)
 {
     // Died?
@@ -89,13 +94,13 @@ void ARoguePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     
     EnhancedInput->BindAction(Input_Jump, ETriggerEvent::Triggered, this, &ARoguePlayerCharacter::Jump);
     
+    EnhancedInput->BindAction(Input_Sprint, ETriggerEvent::Started, this, &ThisClass::StartAction, FName("Sprint"));
+    EnhancedInput->BindAction(Input_Sprint, ETriggerEvent::Completed, this, &ThisClass::StopAction, FName("Sprint"));
+    
     // Projectile Attacks
-    EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this,
-        &ThisClass::StartAction, FName("PrimaryAttack"));
-    EnhancedInput->BindAction(Input_SecondaryAttack, ETriggerEvent::Triggered, this,
-        &ThisClass::StartAction, FName("SecondaryAttack"));
-    EnhancedInput->BindAction(Input_SpecialAttack, ETriggerEvent::Triggered, this,
-        &ThisClass::StartAction, FName("SpecialAttack"));
+    EnhancedInput->BindAction(Input_PrimaryAttack, ETriggerEvent::Triggered, this, &ThisClass::StartAction, FName("PrimaryAttack"));
+    EnhancedInput->BindAction(Input_SecondaryAttack, ETriggerEvent::Triggered, this, &ThisClass::StartAction, FName("SecondaryAttack"));
+    EnhancedInput->BindAction(Input_SpecialAttack, ETriggerEvent::Triggered, this, &ThisClass::StartAction, FName("SpecialAttack"));
 }
 
 float ARoguePlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator,

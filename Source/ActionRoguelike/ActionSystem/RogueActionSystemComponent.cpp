@@ -61,3 +61,17 @@ void URogueActionSystemComponent::StartAction(const FName& InActionName)
 
     UE_LOG(LogTemp, Warning, TEXT("No Action found with name %s"), *InActionName.ToString());
 }
+
+void URogueActionSystemComponent::StopAction(const FName& InActionName)
+{
+    for (const auto& Action : Actions)
+    {
+        if (Action->GetActionName() == InActionName)
+        {
+            Action->StopAction();
+            return;
+        }
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("No Action found with name %s"), *InActionName.ToString());
+}

@@ -10,10 +10,16 @@ URogueActionSystemComponent* URogueAction::GetOwningComponent() const
     return Cast<URogueActionSystemComponent>(GetOuter());
 }
 
-void URogueAction::StartAction()
+void URogueAction::StartAction_Implementation()
 {
-    float GameTime = 0.0f;
-    //GetWorld()->TimeSeconds;
+    float GameTime = GetWorld()->TimeSeconds;
 
     UE_LOGFMT(LogTemp, Log, "Started Action {ActionName} - {WorldTime}", ("ActionName", ActionName), ("WorldTime", GameTime));
+}
+
+void URogueAction::StopAction_Implementation()
+{
+    float GameTime = GetWorld()->TimeSeconds;
+	
+    UE_LOGFMT(LogTemp, Log, "Stopped Action {ActionName} - {WorldTime}", ("ActionName", ActionName), ("WorldTime", GameTime));
 }
