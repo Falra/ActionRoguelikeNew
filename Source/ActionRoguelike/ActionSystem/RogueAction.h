@@ -22,7 +22,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Actions", meta = (Categories = "Action"))
     FGameplayTag ActionName;
 
-    UPROPERTY(EditDefaultsOnly, Category="Actions")
+    UPROPERTY(EditDefaultsOnly, Category = "Actions", meta = (Categories = "StatusEffect"))
+    FGameplayTagContainer GrantTags;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Actions", meta = (Categories = "StatusEffect"))
+    FGameplayTagContainer BlockedTags;
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Actions")
     float CooldownTime = 0.0f;
     
 public:
