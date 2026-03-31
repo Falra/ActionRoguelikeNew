@@ -7,6 +7,7 @@
 #include "RogueActionSystemComponent.generated.h"
 
 class URogueAction;
+struct FGameplayTag;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, OldHealth);
 
@@ -41,9 +42,9 @@ public:
 
     float GetHealthMax() const { return Attributes.HealthMax; }
     
-    void StartAction(const FName& InActionName);
+    void StartAction(FGameplayTag InActionName);
     
-    void StopAction(const FName& InActionName);
+    void StopAction(FGameplayTag InActionName);
     
     virtual void InitializeComponent() override;
     

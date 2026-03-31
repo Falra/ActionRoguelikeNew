@@ -9,6 +9,7 @@
 class URogueActionSystemComponent;
 struct FInputActionInstance;
 struct FInputActionValue;
+struct FGameplayTag;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
@@ -61,9 +62,9 @@ protected:
 
     void Look(const FInputActionInstance& InValue);
 
-    void StartAction(FName InActionName);
+    void StartAction(FGameplayTag InActionName);
     
-    void StopAction(FName InActionName);
+    void StopAction(FGameplayTag InActionName);
     
     UFUNCTION()
     void OnHealthChanged(float NewHealth, float OldHealth);

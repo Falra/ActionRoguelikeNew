@@ -48,7 +48,7 @@ bool URogueActionSystemComponent::IsFullHealth() const
     return FMath::IsNearlyEqual(Attributes.HealthMax, Attributes.Health);
 }
 
-void URogueActionSystemComponent::StartAction(const FName& InActionName)
+void URogueActionSystemComponent::StartAction(FGameplayTag InActionName)
 {
     for (const auto& Action : Actions)
     {
@@ -65,7 +65,7 @@ void URogueActionSystemComponent::StartAction(const FName& InActionName)
     UE_LOG(LogTemp, Warning, TEXT("No Action found with name %s"), *InActionName.ToString());
 }
 
-void URogueActionSystemComponent::StopAction(const FName& InActionName)
+void URogueActionSystemComponent::StopAction(FGameplayTag InActionName)
 {
     for (const auto& Action : Actions)
     {
