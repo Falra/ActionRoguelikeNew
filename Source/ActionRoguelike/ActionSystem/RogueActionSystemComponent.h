@@ -7,25 +7,11 @@
 #include "Components/ActorComponent.h"
 #include "RogueActionSystemComponent.generated.h"
 
+class URogueAttributeSet;
 class URogueAction;
 struct FGameplayTag;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, OldHealth);
-
-USTRUCT(BlueprintType)
-struct FRogueAttributeSet
-{
-    GENERATED_BODY()
-    
-    FRogueAttributeSet()
-        : Health(100.0f), HealthMax(100.0f) {}
-	
-    UPROPERTY(BlueprintReadOnly)
-    float Health;
-    
-    UPROPERTY(BlueprintReadOnly)
-    float HealthMax;
-};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONROGUELIKE_API URogueActionSystemComponent : public UActorComponent
@@ -39,9 +25,9 @@ public:
 
     bool IsFullHealth() const;
 
-    float GetHealth() const { return Attributes.Health; }
+    float GetHealth() const { return 0.0f; } //Attributes.Health; }
 
-    float GetHealthMax() const { return Attributes.HealthMax; }
+    float GetHealthMax() const { return 0.0f; } // Attributes.HealthMax; }
     
     void StartAction(FGameplayTag InActionName);
     
@@ -58,8 +44,11 @@ public:
     
 protected:
 
-    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
-    FRogueAttributeSet Attributes;
+    UPROPERTY()
+    TObjectPtr<URogueAttributeSet> Attributes;
+
+    UPROPERTY(EditAnywhere, Category = "Attributes", NoClear)
+    TSubclassOf<URogueAttributeSet> AttributeSetClass;
 
     UPROPERTY(EditAnywhere, Category = "Actions")
     TArray<TSubclassOf<URogueAction>> DefaultActions;
