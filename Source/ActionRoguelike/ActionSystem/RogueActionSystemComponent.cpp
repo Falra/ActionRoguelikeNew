@@ -14,6 +14,33 @@ URogueActionSystemComponent::URogueActionSystemComponent()
     AttributeSetClass = URogueAttributeSet::StaticClass();
 }
 
+void URogueActionSystemComponent::ApplyAttributeChange(FGameplayTag AttributeTag, float Delta, EAttributeModifyType ModifyType)
+{
+    FRogueAttribute* FoundAttribute = GetAttribute(AttributeTag);
+    check(FoundAttribute);
+
+    float OldValue = FoundAttribute->GetValue();
+
+    switch (ModifyType)
+    {
+        case Base:
+            FoundAttribute->Base += Delta;
+            break;
+        case Modifier:
+            FoundAttribute->Modifier += Delta;
+            break;
+        case OverrideBase:
+            FoundAttribute->Base = Delta;
+            break;
+        default:
+            check(false);
+    }
+
+    Attributes->PostAttributeChanged();
+
+    UE_LOGFMT(LogTemp, Log, "Attribute: {0}, New: {1}, Old: {2}", AttributeTag.ToString(), FoundAttribute->GetValue(), OldValue);
+}
+
 void URogueActionSystemComponent::InitializeComponent()
 {
     Super::InitializeComponent();
@@ -50,24 +77,6 @@ FRogueAttribute* URogueActionSystemComponent::GetAttribute(FGameplayTag InAttrib
     FRogueAttribute** FoundAttribute = CachedAttributes.Find(InAttributeTag);
 
     return *FoundAttribute;
-}
-
-void URogueActionSystemComponent::ApplyHealthChange(float InValueChange)
-{
-    /*const float OldHealth = Attributes.Health;
-    Attributes.Health = FMath::Clamp(Attributes.Health + InValueChange, 0.0f, Attributes.HealthMax);
-
-    if (!FMath::IsNearlyEqual(OldHealth, Attributes.Health))
-    {
-        OnHealthChanged.Broadcast(Attributes.Health, OldHealth);
-    }
-
-    UE_LOG(LogTemp, Log, TEXT("New Health: %f, Max Health: %f"), Attributes.Health, Attributes.HealthMax);*/
-}
-
-bool URogueActionSystemComponent::IsFullHealth() const
-{
-    return true; //FMath::IsNearlyEqual(Attributes.HealthMax, Attributes.Health);
 }
 
 void URogueActionSystemComponent::StartAction(FGameplayTag InActionName)
