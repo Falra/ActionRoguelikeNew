@@ -21,7 +21,7 @@ enum EAttributeModifyType
     Invalid
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, OldHealth);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnAttributeChanged, FGameplayTag /*AttributeTag*/, float /*NewAttributeValue*/, float /*OldAttributeValue*/);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONROGUELIKE_API URogueActionSystemComponent : public UActorComponent
@@ -43,10 +43,9 @@ public:
     
     FRogueAttribute* GetAttribute(FGameplayTag InAttributeTag);
     
-    FGameplayTagContainer ActiveGameplayTags;
+    FOnAttributeChanged& GetAttributeListener(FGameplayTag AttributeTag);
     
-    UPROPERTY(BlueprintAssignable)
-    FOnHealthChanged OnHealthChanged;
+    FGameplayTagContainer ActiveGameplayTags;
     
 protected:
 
@@ -58,6 +57,8 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Attributes", NoClear)
     TSubclassOf<URogueAttributeSet> AttributeSetClass;
 
+    TMap<FGameplayTag, FOnAttributeChanged> AttributeListeners;
+    
     UPROPERTY(EditAnywhere, Category = "Actions")
     TArray<TSubclassOf<URogueAction>> DefaultActions;
     
