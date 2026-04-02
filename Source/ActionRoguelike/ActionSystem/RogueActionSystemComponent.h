@@ -21,7 +21,10 @@ enum EAttributeModifyType
     Invalid
 };
 
+// Native C++ delegate
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnAttributeChanged, FGameplayTag /*AttributeTag*/, float /*NewAttributeValue*/, float /*OldAttributeValue*/);
+// Blueprint delegate
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOnAttributeDynamicChanged, FGameplayTag, AttributeTag, float, NewAttributeValue, float, OldAttributeValue);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONROGUELIKE_API URogueActionSystemComponent : public UActorComponent
@@ -34,7 +37,7 @@ public:
     virtual void BeginPlay() override;
     
     UFUNCTION(BlueprintCallable)
-    void ApplyAttributeChange(FGameplayTag AttributeTag, float Delta, EAttributeModifyType ModifyType);
+    void ApplyAttributeChange(UPARAM(meta = (Categories = "Attribute")) FGameplayTag AttributeTag, float Delta, EAttributeModifyType ModifyType);
     
     void StartAction(FGameplayTag InActionName);
     
@@ -44,9 +47,15 @@ public:
     
     void GrantAction(TSubclassOf<URogueAction> NewActionClass);
     
-    FRogueAttribute* GetAttribute(FGameplayTag InAttributeTag);
+    FRogueAttribute* GetAttribute(FGameplayTag InAttributeTag) const;
+
+    UFUNCTION(BlueprintCallable)
+    float GetAttributeValue(UPARAM(meta = (Categories = "Attribute")) FGameplayTag InAttributeTag) const;
     
     FOnAttributeChanged& GetAttributeListener(FGameplayTag AttributeTag);
+    
+    UFUNCTION(BlueprintCallable, DisplayName="Add Attribute Listener", meta = (Keywords = "events,delegate"))
+    void AddDynamicAttributeListener(FOnAttributeDynamicChanged Event, UPARAM(meta = (Categories = "Attribute")) FGameplayTag AttributeTag);
     
     FGameplayTagContainer ActiveGameplayTags;
     
@@ -61,6 +70,8 @@ protected:
     TSubclassOf<URogueAttributeSet> AttributeSetClass;
 
     TMap<FGameplayTag, FOnAttributeChanged> AttributeListeners;
+    
+    TMap<FGameplayTag, TArray<FOnAttributeDynamicChanged>> AttributeDynamicListeners;
     
     UPROPERTY(EditAnywhere, Category = "Actions")
     TArray<TSubclassOf<URogueAction>> DefaultActions;
