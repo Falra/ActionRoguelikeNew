@@ -14,6 +14,38 @@ URogueActionSystemComponent::URogueActionSystemComponent()
     AttributeSetClass = URogueAttributeSet::StaticClass();
 }
 
+void URogueActionSystemComponent::InitializeComponent()
+{
+    Super::InitializeComponent();
+    
+    Attributes = NewObject<URogueAttributeSet>(this, AttributeSetClass);
+    
+    for (TFieldIterator<FStructProperty> PropIt(Attributes->GetClass()); PropIt; ++PropIt)
+    {
+        FRogueAttribute* FoundAttribute = PropIt->ContainerPtrToValuePtr<FRogueAttribute>(Attributes);
+		
+        FName AttributeTagName = FName("Attribute." + PropIt->GetName());
+        FGameplayTag AttributeTag = FGameplayTag::RequestGameplayTag(AttributeTagName);
+
+        CachedAttributes.Add(AttributeTag, FoundAttribute);
+    }
+    
+    for (const auto ActionClass : DefaultActions)
+    {
+        if (ensure(ActionClass))
+        {
+            GrantAction(ActionClass);
+        }
+    }
+}
+
+void URogueActionSystemComponent::BeginPlay()
+{
+    Super::BeginPlay();
+    
+    Attributes->InitializeAttributes();
+}
+
 void URogueActionSystemComponent::ApplyAttributeChange(FGameplayTag AttributeTag, float Delta, EAttributeModifyType ModifyType)
 {
     FRogueAttribute* FoundAttribute = GetAttribute(AttributeTag);
@@ -44,31 +76,6 @@ void URogueActionSystemComponent::ApplyAttributeChange(FGameplayTag AttributeTag
     }
     
     UE_LOGFMT(LogTemp, Log, "Attribute: {0}, New: {1}, Old: {2}", AttributeTag.ToString(), FoundAttribute->GetValue(), OldValue);
-}
-
-void URogueActionSystemComponent::InitializeComponent()
-{
-    Super::InitializeComponent();
-    
-    Attributes = NewObject<URogueAttributeSet>(this, AttributeSetClass);
-    
-    for (TFieldIterator<FStructProperty> PropIt(Attributes->GetClass()); PropIt; ++PropIt)
-    {
-        FRogueAttribute* FoundAttribute = PropIt->ContainerPtrToValuePtr<FRogueAttribute>(Attributes);
-		
-        FName AttributeTagName = FName("Attribute." + PropIt->GetName());
-        FGameplayTag AttributeTag = FGameplayTag::RequestGameplayTag(AttributeTagName);
-
-        CachedAttributes.Add(AttributeTag, FoundAttribute);
-    }
-    
-    for (const auto ActionClass : DefaultActions)
-    {
-        if (ensure(ActionClass))
-        {
-            GrantAction(ActionClass);
-        }
-    }
 }
 
 void URogueActionSystemComponent::GrantAction(TSubclassOf<URogueAction> NewActionClass)

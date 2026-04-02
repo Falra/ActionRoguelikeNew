@@ -6,6 +6,7 @@ namespace SharedGameplayTags
 {
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_Health);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_HealthMax);
+    UE_DECLARE_GAMEPLAY_TAG_EXTERN(Attribute_MoveSpeed);
 
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Action_PrimaryAttack);
     UE_DECLARE_GAMEPLAY_TAG_EXTERN(Action_SecondaryAttack);

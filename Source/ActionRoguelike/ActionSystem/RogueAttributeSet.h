@@ -6,6 +6,8 @@
 #include "UObject/Object.h"
 #include "RogueAttributeSet.generated.h"
 
+class URogueActionSystemComponent;
+
 USTRUCT()
 struct FRogueAttribute
 {
@@ -38,6 +40,10 @@ class ACTIONROGUELIKE_API URogueAttributeSet : public UObject
     
 public:
 	
+    URogueActionSystemComponent* GetOwningComponent() const;
+
+    virtual void InitializeAttributes() {};
+    
     virtual void PostAttributeChanged() {};
 };
 
@@ -57,4 +63,43 @@ public:
     FRogueAttribute HealthMax;
 
     virtual void PostAttributeChanged() override;
+};
+
+UCLASS()
+class URoguePawnAttributeSet : public URogueHealthAttributeSet
+{
+    GENERATED_BODY()
+
+public:
+
+    virtual void PostAttributeChanged() override;
+
+    virtual void InitializeAttributes() override;
+
+    void ApplyMoveSpeed();
+
+    /*
+    * Walking speed directly linked with Character Movement Component
+    */
+    UPROPERTY(EditAnywhere, Category = "Attributes")
+    FRogueAttribute MoveSpeed;
+
+    URoguePawnAttributeSet();
+};
+
+UCLASS()
+class URoguePlayerAttributeSet : public URoguePawnAttributeSet
+{
+    GENERATED_BODY()
+
+};
+
+UCLASS()
+class URogueMonsterAttributeSet : public URoguePawnAttributeSet
+{
+    GENERATED_BODY()
+
+public:
+
+    URogueMonsterAttributeSet();
 };
