@@ -57,6 +57,9 @@ public:
     UFUNCTION(BlueprintCallable, DisplayName="Add Attribute Listener", meta = (Keywords = "events,delegate"))
     void AddDynamicAttributeListener(FOnAttributeDynamicChanged Event, UPARAM(meta = (Categories = "Attribute")) FGameplayTag AttributeTag);
     
+    UFUNCTION(BlueprintCallable, DisplayName="Remove Attribute Listener", meta = (Keywords = "events,delegate"))
+    void RemoveDynamicAttributeListener(FOnAttributeDynamicChanged Event);
+    
     FGameplayTagContainer ActiveGameplayTags;
     
 protected:
