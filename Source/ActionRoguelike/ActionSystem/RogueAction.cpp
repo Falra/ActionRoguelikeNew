@@ -23,11 +23,27 @@ bool URogueAction::CanStart() const
         return false;
     }
 
-    if (GetOwningComponent()->ActiveGameplayTags.HasAny(BlockedTags))
+    URogueActionSystemComponent* OwningComp = GetOwningComponent();
+    if (OwningComp->ActiveGameplayTags.HasAny(BlockedTags))
     {
         return false;
     }
     
+    for (TPair<FGameplayTag, float> Cost : ActivationCost)
+    {
+        const float AvailableAttributeAmount = OwningComp->GetAttributeValue(Cost.Key);
+        if (AvailableAttributeAmount < Cost.Value)
+        {
+            // Not enough resources
+            UE_LOGFMT(LogTemp, Log, "Not enough {AttributeName} to activate {ActionName}. "
+                           "Have {AvailableAttributeValue} and need {RequiredAttributeValue}",
+                           ("AttributeName", Cost.Key.ToString()),
+                           ("ActionName", ActionName.ToString()),
+                           ("AvailableAttributeValue", AvailableAttributeAmount),
+                           ("RequiredAttributeValue", Cost.Value));
+            return false;
+        }
+    }
     return true;    
 }
 
@@ -45,6 +61,12 @@ void URogueAction::StartAction_Implementation()
     UE_LOGFMT(LogTemp, Log, "Started Action {ActionName} - {WorldTime}", ("ActionName", ActionName.ToString()), ("WorldTime", GameTime));
     
     GetOwningComponent()->ActiveGameplayTags.AppendTags(GrantTags);
+    
+    // Consume required resources
+    for (const TPair<FGameplayTag, float> Cost : ActivationCost)
+    {
+        GetOwningComponent()->ApplyAttributeChange(Cost.Key, -Cost.Value, Modifier);
+    }
 }
 
 void URogueAction::StopAction_Implementation()

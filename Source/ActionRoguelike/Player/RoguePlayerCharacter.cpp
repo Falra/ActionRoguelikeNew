@@ -62,8 +62,9 @@ void ARoguePlayerCharacter::StopAction(FGameplayTag InActionName)
 
 void ARoguePlayerCharacter::OnHealthChanged(FGameplayTag AttributeTag, float NewHealth, float OldHealth)
 {
+    const float DamageAmount = NewHealth - OldHealth;
     // Died?
-    if (FMath::IsNearlyZero(NewHealth))
+    if (FMath::IsNearlyZero(NewHealth) && DamageAmount > 0.0f)
     {
         DisableInput(nullptr);
 
@@ -113,6 +114,11 @@ float ARoguePlayerCharacter::TakeDamage(float DamageAmount, struct FDamageEvent 
 
     ActionSystemComponent->ApplyAttributeChange(SharedGameplayTags::Attribute_Health, -ActualDamage, Base);
 
+    // Damage to Rage ratio
+    // (We could expose this as a global/general ratio or as an Attribute that can be improved through gameplay)
+    const float RageToAdd = DamageAmount * 0.75f;
+    ActionSystemComponent->ApplyAttributeChange(SharedGameplayTags::Attribute_Rage, RageToAdd, Modifier);
+    
     return ActualDamage;
 }
 

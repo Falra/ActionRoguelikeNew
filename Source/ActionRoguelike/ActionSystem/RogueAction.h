@@ -31,6 +31,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Actions")
     float CooldownTime = 0.0f;
     
+    UPROPERTY(EditDefaultsOnly, Category = "Actions", meta = (Categories = "Attribute"))
+    TMap<FGameplayTag, float> ActivationCost;
+    
 public:
     UFUNCTION(BlueprintCallable)
     URogueActionSystemComponent* GetOwningComponent() const;

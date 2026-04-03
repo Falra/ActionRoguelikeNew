@@ -84,6 +84,9 @@ public:
     UPROPERTY(EditAnywhere, Category = "Attributes")
     FRogueAttribute MoveSpeed;
 
+    UPROPERTY(EditAnywhere, Category = "Attributes")
+    FRogueAttribute MoveSpeedMultiplier;
+    
     URoguePawnAttributeSet();
 };
 
@@ -92,6 +95,10 @@ class URoguePlayerAttributeSet : public URoguePawnAttributeSet
 {
     GENERATED_BODY()
 
+public:
+
+    UPROPERTY(EditAnywhere, Category=Attributes)
+    FRogueAttribute Rage;
 };
 
 UCLASS()
