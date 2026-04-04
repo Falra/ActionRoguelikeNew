@@ -24,4 +24,7 @@ public:
     
     virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+protected:
+	
+    FTimerHandle OverlayTimerHandle;
 };
