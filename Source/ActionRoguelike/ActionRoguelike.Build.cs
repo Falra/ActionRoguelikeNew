@@ -10,7 +10,7 @@ public class ActionRoguelike : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput", "Niagara", "AIModule", "GameplayTags" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "EnhancedInput", "Niagara", "AIModule", "GameplayTags", "NavigationSystem" });
 
 		// Add your new public include folder path here:
 		PublicIncludePaths.AddRange(new string[] { "ActionRoguelike" });
