@@ -19,6 +19,12 @@ public:
     UPROPERTY(Config, EditDefaultsOnly, Category = "Pickups")
     TSoftObjectPtr<UStaticMesh> CoinPickupMesh;
 
+    UPROPERTY(Config, EditDefaultsOnly, Category = "Pickups")
+    TSoftObjectPtr<USoundBase> CoinPickupSound;
+
+    UPROPERTY(Config, EditDefaultsOnly, Category = "Pickups")
+    FName CoinPickupTriggerParameter;
+    
     virtual FName GetCategoryName() const override
     {
         return FApp::GetProjectName();
