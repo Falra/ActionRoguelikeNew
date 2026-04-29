@@ -29,6 +29,8 @@ public:
 
     virtual void OnWorldBeginPlay(UWorld& InWorld) override;
     
+    void OnPickupMeshLoadComplete(const FSoftObjectPath& SoftObjectPath, UObject* LoadedObject);
+    
 protected:
 	
     UPROPERTY()
