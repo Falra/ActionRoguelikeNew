@@ -5,6 +5,7 @@
 
 #include "ActionRoguelike.h"
 #include "RogueAction.h"
+#include "RogueActionEffect.h"
 #include "RogueAttributeSet.h"
 
 
@@ -111,6 +112,20 @@ void URogueActionSystemComponent::GrantAction(TSubclassOf<URogueAction> NewActio
 {
     URogueAction* NewAction = NewObject<URogueAction>(this, NewActionClass);
     Actions.Add(NewAction);
+    
+    if (NewAction->IsA(URogueActionEffect::StaticClass()))
+    {
+        // Sanity check that buffs are allowed to run. We do not handle this case yet
+        ensureMsgf(NewAction->CanStart(), TEXT("Effect can not start CanStart returns FALSE. Case not handled."));
+		
+        NewAction->StartAction();
+    }
+}
+
+void URogueActionSystemComponent::RemoveAction(URogueAction* ActionToRemove)
+{
+    const int32 RemoveCount = Actions.RemoveSingle(ActionToRemove);
+    ensure(RemoveCount == 1);
 }
 
 FRogueAttribute* URogueActionSystemComponent::GetAttribute(FGameplayTag InAttributeTag) const

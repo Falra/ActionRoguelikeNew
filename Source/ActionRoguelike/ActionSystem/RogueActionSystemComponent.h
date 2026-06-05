@@ -47,7 +47,10 @@ public:
     
     void SetDefaultAttributeSet(TSubclassOf<URogueAttributeSet> AttributeSetClass);
     
+    UFUNCTION(BlueprintCallable)
     void GrantAction(TSubclassOf<URogueAction> NewActionClass);
+    
+    void RemoveAction(URogueAction* ActionToRemove);
     
     FRogueAttribute* GetAttribute(FGameplayTag InAttributeTag) const;
 
