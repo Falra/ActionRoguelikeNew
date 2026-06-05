@@ -20,11 +20,12 @@ public:
 
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-protected:
-
     UPROPERTY(Transient, BlueprintReadOnly, Category = "StatusEffects")
     bool bIsSprinting;
 
+    UPROPERTY(Transient, BlueprintReadOnly, Category = "StatusEffects")
+    bool bIsStunned;
+    
     UPROPERTY(Transient, BlueprintReadOnly)
     TObjectPtr<URogueActionSystemComponent> ActionComp;
 
