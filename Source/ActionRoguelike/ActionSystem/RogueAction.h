@@ -52,6 +52,11 @@ public:
     
     float GetCooldownTimeRemaining() const;
     
+    virtual bool ImplementsGetWorld() const override
+    {
+        return true;
+    }
+    
 protected:
 
     /* GameTime until the Action is available again */
