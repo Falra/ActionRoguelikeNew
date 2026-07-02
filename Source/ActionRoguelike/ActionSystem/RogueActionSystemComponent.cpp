@@ -126,6 +126,9 @@ void URogueActionSystemComponent::RemoveAction(URogueAction* ActionToRemove)
 {
     const int32 RemoveCount = Actions.RemoveSingle(ActionToRemove);
     ensure(RemoveCount == 1);
+    
+    UE_LOG(LogGame, Verbose, TEXT("Removed Action %s from %s"), *GetNameSafe(ActionToRemove), *GetNameSafe(GetOwner()));
+    ActionToRemove->MarkAsGarbage();
 }
 
 void URogueActionSystemComponent::AppendActiveTags(FGameplayTagContainer NewTags)
