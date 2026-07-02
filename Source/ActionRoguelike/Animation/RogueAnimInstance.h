@@ -6,6 +6,8 @@
 #include "Animation/AnimInstance.h"
 #include "RogueAnimInstance.generated.h"
 
+struct FGameplayTag;
+
 class URogueActionSystemComponent;
 /**
  * 
@@ -18,7 +20,7 @@ class ACTIONROGUELIKE_API URogueAnimInstance : public UAnimInstance
 public:
     virtual void NativeInitializeAnimation() override;
 
-    virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+    virtual void NativeBeginPlay() override;
 
     UPROPERTY(Transient, BlueprintReadOnly, Category = "StatusEffects")
     bool bIsSprinting;
@@ -28,5 +30,8 @@ public:
     
     UPROPERTY(Transient, BlueprintReadOnly)
     TObjectPtr<URogueActionSystemComponent> ActionComp;
+    
+    UFUNCTION()
+    void OnTagUpdated(FGameplayTag UpdatedTag, int32 NewCount);
 
 };

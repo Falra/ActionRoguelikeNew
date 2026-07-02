@@ -13,13 +13,23 @@ void URogueAnimInstance::NativeInitializeAnimation()
     ActionComp = GetOwningActor()->FindComponentByClass<URogueActionSystemComponent>();
 }
 
-void URogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void URogueAnimInstance::NativeBeginPlay()
 {
-    Super::NativeUpdateAnimation(DeltaSeconds);
+    Super::NativeBeginPlay();
     
-    if (ActionComp)
+    ActionComp->GameplayTagUpdated.AddDynamic(this, &ThisClass::OnTagUpdated);
+}
+
+void URogueAnimInstance::OnTagUpdated(FGameplayTag UpdatedTag, int32 NewCount)
+{
+    const bool bWasAdded = NewCount > 0;
+	
+    if (UpdatedTag == SharedGameplayTags::StatusEffect_Sprinting)
     {
-        bIsSprinting = ActionComp->ActiveGameplayTags.HasTag(SharedGameplayTags::StatusEffect_Sprinting);
-        bIsStunned = ActionComp->ActiveGameplayTags.HasTag(SharedGameplayTags::StatusEffect_Stunned);
+        bIsSprinting = bWasAdded;
+    }
+    else if (UpdatedTag == SharedGameplayTags::StatusEffect_Stunned)
+    {
+        bIsStunned = bWasAdded;
     }
 }

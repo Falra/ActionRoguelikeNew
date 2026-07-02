@@ -52,6 +52,11 @@ public:
     
     float GetCooldownTimeRemaining() const;
     
+    const FGameplayTagContainer& GetBlockedTags() const
+    {
+        return BlockedTags;
+    }
+    
     virtual bool ImplementsGetWorld() const override
     {
         return true;

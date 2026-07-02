@@ -18,7 +18,7 @@ void URogueActionSystemComponent::InitializeComponent()
 {
     Super::InitializeComponent();
     
-    // Fallback for Blueprint and CPP having not yet defined a default
+    // Fallback for Blueprint and CPP have not yet defined a default
     if (Attributes == nullptr)
     {
         Attributes = NewObject<URogueAttributeSet>(this, URogueAttributeSet::StaticClass());
@@ -126,6 +126,48 @@ void URogueActionSystemComponent::RemoveAction(URogueAction* ActionToRemove)
 {
     const int32 RemoveCount = Actions.RemoveSingle(ActionToRemove);
     ensure(RemoveCount == 1);
+}
+
+void URogueActionSystemComponent::AppendActiveTags(FGameplayTagContainer NewTags)
+{
+    ActiveGameplayTags.AppendTags(NewTags);
+	
+    CheckAgainstBlockedTags(NewTags);
+
+    for (const FGameplayTag Tag : NewTags)
+    {
+        GameplayTagUpdated.Broadcast(Tag, 1);
+    }
+}
+
+void URogueActionSystemComponent::RemoveActiveTags(FGameplayTagContainer TagsToRemove)
+{
+    const int32 PrevCount = ActiveGameplayTags.Num();
+	
+    ActiveGameplayTags.RemoveTags(TagsToRemove);
+	
+    ensure((PrevCount - ActiveGameplayTags.Num()) == TagsToRemove.Num());
+	
+    for (const FGameplayTag Tag : TagsToRemove)
+    {
+        GameplayTagUpdated.Broadcast(Tag, 0);
+    }
+}
+
+void URogueActionSystemComponent::CheckAgainstBlockedTags(const FGameplayTagContainer& NewTags)
+{
+    for (URogueAction* Action : Actions)
+    {
+        if (Action->IsRunning() && NewTags.HasAny(Action->GetBlockedTags()))
+        {
+            Action->StopAction();
+			
+            UE_LOGFMT(LogGame, Log, "Stopped {ActionName} due to any matching blocked tag {BlockedTags} for {Owner}",
+                ("ActionName", Action->GetActionName().ToString()),
+                ("BlockedTags", NewTags.ToString()),
+                ("Owner", GetNameSafe(GetOwner())));
+        }
+    }
 }
 
 FRogueAttribute* URogueActionSystemComponent::GetAttribute(FGameplayTag InAttributeTag) const
