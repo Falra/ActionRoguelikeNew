@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "RogueAICharacter.generated.h"
 
+struct FGameplayTag;
 class URogueActionSystemComponent;
 
 UCLASS()
@@ -14,19 +15,23 @@ class ACTIONROGUELIKE_API ARogueAICharacter : public ACharacter
     GENERATED_BODY()
 
 protected:
-	
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     TObjectPtr<URogueActionSystemComponent> ActionSystemComponent;
-    
-public:
 
+    UFUNCTION()
+    void OnGameplayTagUpdated(FGameplayTag UpdatedTag, int32 NewCount);
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    TObjectPtr<UAnimMontage> StunnedAnimation;
+
+public:
     ARogueAICharacter();
-    
+
     virtual void PostInitializeComponents() override;
-    
-    virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+    virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+        AActor* DamageCauser) override;
 
 protected:
-	
     FTimerHandle OverlayTimerHandle;
 };

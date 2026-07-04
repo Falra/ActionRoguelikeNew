@@ -2,14 +2,17 @@
 
 
 #include "RogueProjectileMagic.h"
+
+#include "ActionSystem/RogueActionSystemComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "ActionSystem/RogueActionEffect.h"
 
 
 ARogueProjectileMagic::ARogueProjectileMagic()
 {
     ProjectileMovementComponent->InitialSpeed = 2000.0f;
-    
+
     InitialLifeSpan = 8.0f;
 }
 
@@ -20,7 +23,16 @@ void ARogueProjectileMagic::OnActorHit(UPrimitiveComponent* HitComponent, AActor
     Super::OnActorHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
 
     const FVector HitFromDirection = GetActorRotation().Vector();
-	
-    UGameplayStatics::ApplyPointDamage(OtherActor, 10.f, HitFromDirection, Hit,  GetInstigatorController(),
-        this, DmgTypeClass);   
+
+    UGameplayStatics::ApplyPointDamage(OtherActor, 10.f, HitFromDirection, Hit, GetInstigatorController(),
+        this, DmgTypeClass);
+    
+    if (EffectOnHit)
+    {
+        URogueActionSystemComponent* ActionComp = OtherActor->FindComponentByClass<URogueActionSystemComponent>();
+        if (ActionComp) // Not everything will have one
+        {
+            ActionComp->GrantAction(EffectOnHit);
+        }
+    }
 }

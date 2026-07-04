@@ -17,25 +17,25 @@ URogueActionSystemComponent::URogueActionSystemComponent()
 void URogueActionSystemComponent::InitializeComponent()
 {
     Super::InitializeComponent();
-    
+
     // Fallback for Blueprint and CPP have not yet defined a default
     if (Attributes == nullptr)
     {
         Attributes = NewObject<URogueAttributeSet>(this, URogueAttributeSet::StaticClass());
         UE_LOG(LogGame, Warning, TEXT("No default AttributeSet defined. Set using SetDefaultAttributeSet() "
-                                "during Actor Construction or assign in Blueprint ActionComponent for %s."), *GetNameSafe(GetOwner()));
+            "during Actor Construction or assign in Blueprint ActionComponent for %s."), *GetNameSafe(GetOwner()));
     }
-    
+
     for (TFieldIterator<FStructProperty> PropIt(Attributes->GetClass()); PropIt; ++PropIt)
     {
         FRogueAttribute* FoundAttribute = PropIt->ContainerPtrToValuePtr<FRogueAttribute>(Attributes);
-		
+
         FName AttributeTagName = FName("Attribute." + PropIt->GetName());
         FGameplayTag AttributeTag = FGameplayTag::RequestGameplayTag(AttributeTagName);
 
         CachedAttributes.Add(AttributeTag, FoundAttribute);
     }
-    
+
     for (const auto ActionClass : DefaultActions)
     {
         if (ensure(ActionClass))
@@ -51,13 +51,14 @@ void URogueActionSystemComponent::SetDefaultAttributeSet(TSubclassOf<URogueAttri
 
     // Only available during constructors of UObjects
     const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get();
-    Attributes = Cast<URogueAttributeSet>(ObjectInitializer.CreateDefaultSubobject(this, TEXT("Attributes"), AttributeSetClass, AttributeSetClass));
+    Attributes = Cast<URogueAttributeSet>(
+        ObjectInitializer.CreateDefaultSubobject(this, TEXT("Attributes"), AttributeSetClass, AttributeSetClass));
 }
 
 void URogueActionSystemComponent::BeginPlay()
 {
     Super::BeginPlay();
-    
+
     Attributes->InitializeAttributes();
 }
 
@@ -104,20 +105,38 @@ void URogueActionSystemComponent::ApplyAttributeChange(FGameplayTag AttributeTag
             }
         }
     }
-    
+
     UE_LOGFMT(LogGame, Log, "Attribute: {0}, New: {1}, Old: {2}", AttributeTag.ToString(), FoundAttribute->GetValue(), OldValue);
 }
 
 void URogueActionSystemComponent::GrantAction(TSubclassOf<URogueAction> NewActionClass)
 {
+    const bool bIsEffectClass = NewActionClass->IsChildOf(URogueActionEffect::StaticClass());
+    if (bIsEffectClass)
+    {
+        // Find existing debuff by class, you could have different 'stacking behavior' eg. allowing one debuff class PER instigator
+        // Note: Buffs and Actions may desire their own individual arrays when expanding on the Action System
+        for (URogueAction* Action : Actions)
+        {
+            if (URogueActionEffect* Effect = Cast<URogueActionEffect>(Action))
+            {
+                if (Effect->GetClass() == NewActionClass)
+                {
+                    Effect->IncrementStackSize();
+                    return;
+                }
+            }
+        }
+    }
+    
     URogueAction* NewAction = NewObject<URogueAction>(this, NewActionClass);
     Actions.Add(NewAction);
-    
-    if (NewAction->IsA(URogueActionEffect::StaticClass()))
+
+    if (bIsEffectClass)
     {
         // Sanity check that buffs are allowed to run. We do not handle this case yet
         ensureMsgf(NewAction->CanStart(), TEXT("Effect can not start CanStart returns FALSE. Case not handled."));
-		
+
         NewAction->StartAction();
     }
 }
@@ -126,7 +145,7 @@ void URogueActionSystemComponent::RemoveAction(URogueAction* ActionToRemove)
 {
     const int32 RemoveCount = Actions.RemoveSingle(ActionToRemove);
     ensure(RemoveCount == 1);
-    
+
     UE_LOG(LogGame, Verbose, TEXT("Removed Action %s from %s"), *GetNameSafe(ActionToRemove), *GetNameSafe(GetOwner()));
     ActionToRemove->MarkAsGarbage();
 }
@@ -134,7 +153,7 @@ void URogueActionSystemComponent::RemoveAction(URogueAction* ActionToRemove)
 void URogueActionSystemComponent::AppendActiveTags(FGameplayTagContainer NewTags)
 {
     ActiveGameplayTags.AppendTags(NewTags);
-	
+
     CheckAgainstBlockedTags(NewTags);
 
     for (const FGameplayTag Tag : NewTags)
@@ -146,11 +165,11 @@ void URogueActionSystemComponent::AppendActiveTags(FGameplayTagContainer NewTags
 void URogueActionSystemComponent::RemoveActiveTags(FGameplayTagContainer TagsToRemove)
 {
     const int32 PrevCount = ActiveGameplayTags.Num();
-	
+
     ActiveGameplayTags.RemoveTags(TagsToRemove);
-	
+
     ensure((PrevCount - ActiveGameplayTags.Num()) == TagsToRemove.Num());
-	
+
     for (const FGameplayTag Tag : TagsToRemove)
     {
         GameplayTagUpdated.Broadcast(Tag, 0);
@@ -164,7 +183,7 @@ void URogueActionSystemComponent::CheckAgainstBlockedTags(const FGameplayTagCont
         if (Action->IsRunning() && NewTags.HasAny(Action->GetBlockedTags()))
         {
             Action->StopAction();
-			
+
             UE_LOGFMT(LogGame, Log, "Stopped {ActionName} due to any matching blocked tag {BlockedTags} for {Owner}",
                 ("ActionName", Action->GetActionName().ToString()),
                 ("BlockedTags", NewTags.ToString()),
