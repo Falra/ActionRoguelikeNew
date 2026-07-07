@@ -9,7 +9,7 @@
 struct FGameplayTag;
 class URogueActionSystemComponent;
 
-UCLASS()
+UCLASS(Abstract)
 class ACTIONROGUELIKE_API ARogueAICharacter : public ACharacter
 {
     GENERATED_BODY()
