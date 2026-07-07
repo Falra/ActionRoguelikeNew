@@ -14,7 +14,7 @@ public class ActionRoguelike : ModuleRules
 			"NavigationSystem", "DeveloperSettings" });
 
 		// Add your new public include folder path here:
-		PublicIncludePaths.AddRange(new string[] { "ActionRoguelike" });
+		PublicIncludePaths.AddRange(new string[] { "ActionRoguelike", "ActionRoguelike/AI", "ActionRoguelike/Core", "ActionRoguelike/GameModes", "ActionRoguelike/World" });
 		
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

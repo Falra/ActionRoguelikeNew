@@ -14,5 +14,6 @@ class ACTIONROGUELIKE_API URogueEnvQueryContext_TargetActor : public UEnvQueryCo
 {
     GENERATED_BODY()
 
+public:
     virtual void ProvideContext(FEnvQueryInstance& QueryInstance, FEnvQueryContextData& ContextData) const override;
 };

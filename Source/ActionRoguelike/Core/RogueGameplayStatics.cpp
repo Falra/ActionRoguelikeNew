@@ -9,8 +9,25 @@
 
 bool URogueGameplayStatics::IsFullHealth(URogueActionSystemComponent* ActionComp)
 {
-    const FRogueAttribute* Health = ActionComp->GetAttribute(SharedGameplayTags::Attribute_Health);
-    const FRogueAttribute* HealthMax = ActionComp->GetAttribute(SharedGameplayTags::Attribute_HealthMax);
+    if (ActionComp)
+    {
+        const FRogueAttribute* Health = ActionComp->GetAttribute(SharedGameplayTags::Attribute_Health);
+        const FRogueAttribute* HealthMax = ActionComp->GetAttribute(SharedGameplayTags::Attribute_HealthMax);
 
-    return FMath::IsNearlyEqual(Health->GetValue(), HealthMax->GetValue());
+        return FMath::IsNearlyEqual(Health->GetValue(), HealthMax->GetValue());
+    }
+
+    return false;
+}
+
+bool URogueGameplayStatics::IsAlive(AActor* ActorToCheck)
+{
+    if (ActorToCheck)
+    {
+        const URogueActionSystemComponent* ActionComp = ActorToCheck->FindComponentByClass<URogueActionSystemComponent>();
+
+        return ActionComp->GetAttributeValue(SharedGameplayTags::Attribute_Health) > 0.0f;
+    }
+
+    return false;
 }
