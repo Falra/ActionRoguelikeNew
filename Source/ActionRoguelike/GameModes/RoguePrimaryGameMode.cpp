@@ -3,6 +3,8 @@
 
 #include "RoguePrimaryGameMode.h"
 
+#include "ActionRoguelike.h"
+#include "RogueGameInstance.h"
 #include "RogueGameTypes.h"
 #include "AI/RogueAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
@@ -20,6 +22,15 @@ void ARoguePrimaryGameMode::Tick(float DeltaSeconds)
 
     const float TotalElapsedTime = GetWorld()->TimeSeconds;
 
+    constexpr int32 MaxBotLimit = 5;
+    const URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
+    if (GI->AliveMonsters.Num() >= MaxBotLimit)
+    {
+        UE_LOG(LogGameMode, Log, TEXT("Reached bot spawn limit of %d"), MaxBotLimit);
+        return;
+    }
+
+    int32 KeyID = ONSCREENDEBUGKEY_SPAWNDIRECTOR;
     for (FRogueDirectorData& Director : Directors)
     {
         if (Director.MonsterSpawnTable == nullptr)
@@ -30,6 +41,10 @@ void ARoguePrimaryGameMode::Tick(float DeltaSeconds)
         const float CreditsPerSecond = Director.CreditGainCurve.GetRichCurve()->Eval(TotalElapsedTime);
         Director.CurrentCredits += CreditsPerSecond * DeltaSeconds;
 
+        FString DebugMsg = FString::Printf(TEXT("Current Credits: %f\nNextTickTime: %f"), Director.CurrentCredits, Director.NextTickTime);
+        GEngine->AddOnScreenDebugMessage(KeyID, PrimaryActorTick.TickInterval, FColor::Blue, DebugMsg);
+        KeyID++;
+
         if (Director.NextTickTime > TotalElapsedTime)
         {
             continue;
@@ -39,7 +54,7 @@ void ARoguePrimaryGameMode::Tick(float DeltaSeconds)
 
         Director.NextTickTime = TotalElapsedTime + (bSuccess ? Director.TickInterval : Director.TimeBetweenWaves);
 
-        UE_LOG(LogGameMode, Log, TEXT("Total Credits: %f"), Director.CurrentCredits);
+        //UE_LOG(LogGameMode, Log, TEXT("Total Credits: %f"), Director.CurrentCredits);
     }
 }
 
@@ -58,7 +73,10 @@ bool ARoguePrimaryGameMode::TrySpawnMonster(FRogueDirectorData& Director)
         return false;
     }
 
-    const FQueryFinishedSignature CompleteDelegate = FQueryFinishedSignature::CreateUObject(this, &ThisClass::SpawnQueryCompleted, SelectedRow);
+    Director.CurrentCredits -= SelectedRow->SpawnCost;
+
+    const FQueryFinishedSignature CompleteDelegate = FQueryFinishedSignature::CreateUObject(this, &ThisClass::SpawnQueryCompleted,
+        SelectedRow);
 
     FEnvQueryRequest Request(Director.SpawnLocationQuery, this);
     int32 QueryID = Request.Execute(EEnvQueryRunMode::SingleResult, CompleteDelegate);
@@ -82,6 +100,9 @@ void ARoguePrimaryGameMode::OnMonsterClassLoaded(const FSoftObjectPath& LoadedOb
 
     ARogueAICharacter* NewMonster = GetWorld()->SpawnActor<ARogueAICharacter>(SelectedMonster->MonsterClass.Get(), SpawnLocation,
         FRotator::ZeroRotator, SpawnParams);
+
+    UE_VLOG_SPHERE(this, LogGameMode, Log, SpawnLocation, 32.0f, FColor::Blue, TEXT("MonsterType: %s\nCost:%s"), 
+        *GetNameSafe(SelectedMonster->MonsterClass.Get()), *FString::SanitizeFloat(SelectedMonster->SpawnCost));
 
     // Set attributes, add buffs/debuffs, etc.
 }
