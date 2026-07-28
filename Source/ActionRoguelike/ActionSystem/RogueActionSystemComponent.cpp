@@ -35,14 +35,6 @@ void URogueActionSystemComponent::InitializeComponent()
 
         CachedAttributes.Add(AttributeTag, FoundAttribute);
     }
-
-    for (const auto ActionClass : DefaultActions)
-    {
-        if (ensure(ActionClass))
-        {
-            GrantAction(ActionClass);
-        }
-    }
 }
 
 void URogueActionSystemComponent::SetDefaultAttributeSet(TSubclassOf<URogueAttributeSet> AttributeSetClass)
@@ -60,6 +52,14 @@ void URogueActionSystemComponent::BeginPlay()
     Super::BeginPlay();
 
     Attributes->InitializeAttributes();
+    
+    for (const auto ActionClass : DefaultActions)
+    {
+        if (ensure(ActionClass))
+        {
+            GrantAction(ActionClass);
+        }
+    }
 }
 
 void URogueActionSystemComponent::ApplyAttributeChange(FGameplayTag AttributeTag, float Delta, EAttributeModifyType ModifyType)

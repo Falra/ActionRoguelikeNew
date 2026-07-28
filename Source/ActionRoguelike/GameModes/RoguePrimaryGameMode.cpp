@@ -25,20 +25,12 @@ void ARoguePrimaryGameMode::Tick(float DeltaSeconds)
 
     const float TotalElapsedTime = GetWorld()->TimeSeconds;
 
-    constexpr int32 MaxBotLimit = 5;
-    const URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
-    if (GI->AliveMonsters.Num() >= MaxBotLimit)
-    {
-        UE_LOG(LogGameMode, Log, TEXT("Reached bot spawn limit of %d"), MaxBotLimit);
-        return;
-    }
-
     int32 KeyID = ONSCREENDEBUGKEY_SPAWNDIRECTOR;
     for (FRogueDirectorData& Director : Directors)
     {
         if (Director.MonsterSpawnTable == nullptr)
         {
-            return;
+            continue;
         }
 
         const float CreditsPerSecond = Director.CreditGainCurve.GetRichCurve()->Eval(TotalElapsedTime);
@@ -63,6 +55,14 @@ void ARoguePrimaryGameMode::Tick(float DeltaSeconds)
 
 bool ARoguePrimaryGameMode::TrySpawnMonster(FRogueDirectorData& Director)
 {
+    constexpr  int32 MaxBotLimit = 5;
+    const URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
+    if (GI->AliveMonsters.Num() >= MaxBotLimit)
+    {
+        UE_LOG(LogGameMode, Log, TEXT("Reached bot spawn limit of %d"), MaxBotLimit);
+        return false;
+    }
+	
     TArray<FMonsterSpawnData*> AllRows;
     Director.MonsterSpawnTable->GetAllRows("SelectMonster", AllRows);
 
@@ -157,12 +157,13 @@ void ARoguePrimaryGameMode::OnMonsterClassLoaded(const FSoftObjectPath& LoadedOb
 
     // add buffs/debuffs, etc.
 	
-    URogueActionSystemComponent* ActionComp = NewMonster->GetActionSystemComponent();
-
-    for (const auto ActionClass : MonsterData->Actions)
+    if (IsValid(NewMonster))
     {
-        ActionComp->GrantAction(ActionClass);
-    }
+        URogueActionSystemComponent* ActionComp = NewMonster->GetActionSystemComponent();
 
-    // Set attributes, add buffs/debuffs, etc.
+        for (const auto ActionClass : MonsterData->Actions)
+        {
+            ActionComp->GrantAction(ActionClass);
+        }
+    }
 }
