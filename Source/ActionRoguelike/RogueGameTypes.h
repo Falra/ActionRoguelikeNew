@@ -22,10 +22,10 @@ public:
     TSoftObjectPtr<URogueMonsterData> MonsterData;
 
     /* Points required by gamemode to spawn this unit. */
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = 0.0f))
     float SpawnCost = 0.0f;
     
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, meta = (ClampMin = 0.0f))
     float SpawnWeight = 1.0f;
 };
 
@@ -50,6 +50,12 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Spawn System")
     float TimeBetweenWaves = 6.0f;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Spawn System")
+    FString DebugDisplayName = TEXT("DirectorName");
+	
+    UPROPERTY(EditDefaultsOnly, Category = "Spawn System")
+    FColor DebugColor = FColor::White;
+    
     float CurrentCredits = 0.0f;
 
     float NextTickTime = 0.0f;

@@ -12,6 +12,18 @@
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "Kismet/GameplayStatics.h"
 
+TAutoConsoleVariable<bool> CVarGameBotSpawningEnabled(
+    TEXT("game.BotSpawningEnabled"),
+    true,
+    TEXT("Allows disabling of bot spawning for debugging purposes."),
+    ECVF_Cheat);
+
+TAutoConsoleVariable<int32> CVarGameBotLimit(
+    TEXT("game.BotLimit"),
+    5,
+    TEXT("Define the maximum number of alive bots in the world."),
+    ECVF_Default);
+
 
 ARoguePrimaryGameMode::ARoguePrimaryGameMode()
 {
@@ -36,8 +48,8 @@ void ARoguePrimaryGameMode::Tick(float DeltaSeconds)
         const float CreditsPerSecond = Director.CreditGainCurve.GetRichCurve()->Eval(TotalElapsedTime);
         Director.CurrentCredits += CreditsPerSecond * DeltaSeconds;
 
-        FString DebugMsg = FString::Printf(TEXT("Current Credits: %f\nNextTickTime: %f"), Director.CurrentCredits, Director.NextTickTime);
-        GEngine->AddOnScreenDebugMessage(KeyID, PrimaryActorTick.TickInterval, FColor::Blue, DebugMsg);
+        FString DebugMsg = FString::Printf(TEXT("%s\nCurrent Credits: %f\nNextTickTime: %f\n"), *Director.DebugDisplayName, Director.CurrentCredits, Director.NextTickTime);
+        GEngine->AddOnScreenDebugMessage(KeyID, PrimaryActorTick.TickInterval, Director.DebugColor, DebugMsg);
         KeyID++;
 
         if (Director.NextTickTime > TotalElapsedTime)
@@ -55,7 +67,7 @@ void ARoguePrimaryGameMode::Tick(float DeltaSeconds)
 
 bool ARoguePrimaryGameMode::TrySpawnMonster(FRogueDirectorData& Director)
 {
-    constexpr  int32 MaxBotLimit = 5;
+    const int32 MaxBotLimit = CVarGameBotLimit.GetValueOnGameThread();
     const URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
     if (GI->AliveMonsters.Num() >= MaxBotLimit)
     {
@@ -123,7 +135,7 @@ void ARoguePrimaryGameMode::StartPlay()
         const int32 NewSeed = GlobalStream.RandRange(0, MAX_int32 - 1);
         Director.RandomStream_MonsterSelection = FRandomStream(NewSeed);
 		
-        UE_LOG(LogGameMode, Log, TEXT("Seed: %d"), Director.RandomStream_MonsterSelection.GetInitialSeed());
+        UE_LOG(LogGameMode, Log, TEXT("Seed: %d for %s"), Director.RandomStream_MonsterSelection.GetInitialSeed(), *Director.DebugDisplayName);
     }
 }
 
@@ -138,6 +150,11 @@ void ARoguePrimaryGameMode::SpawnQueryCompleted(TSharedPtr<FEnvQueryResult> Quer
 void ARoguePrimaryGameMode::OnMonsterClassLoaded(const FSoftObjectPath& LoadedObjectPath, UObject* LoadedObject, FVector SpawnLocation,
     FMonsterSpawnData* SelectedMonster)
 {
+    if (!CVarGameBotSpawningEnabled.GetValueOnGameThread())
+    {
+        return;
+    }
+    
     FActorSpawnParameters SpawnParams;
     const FTransform SpawnTM = FTransform(SpawnLocation);
 
@@ -152,8 +169,8 @@ void ARoguePrimaryGameMode::OnMonsterClassLoaded(const FSoftObjectPath& LoadedOb
     // Calls BeginPlay
     UGameplayStatics::FinishSpawningActor(NewMonster, SpawnTM);
 
-    UE_VLOG_SPHERE(this, LogGameMode, Log, SpawnLocation, 32.0f, FColor::Blue, TEXT("MonsterType: %s\nCost:%s"), 
-        *GetNameSafe(MonsterData->MonsterClass), *FString::SanitizeFloat(SelectedMonster->SpawnCost));
+    UE_VLOG_SPHERE(this, LogGameMode, Log, SpawnLocation, 32.0f, FColor::Blue, TEXT("MonsterType: %s\nCost:%.2f"), 
+        *GetNameSafe(MonsterData->MonsterClass), SelectedMonster->SpawnCost);
 
     // add buffs/debuffs, etc.
 	

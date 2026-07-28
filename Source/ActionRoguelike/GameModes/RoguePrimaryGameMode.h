@@ -19,7 +19,7 @@ class ACTIONROGUELIKE_API ARoguePrimaryGameMode : public ARogueGameMode
     GENERATED_BODY()
 
 protected:
-    UPROPERTY(EditDefaultsOnly, Category = "Spawn System")
+    UPROPERTY(EditDefaultsOnly, Category = "Spawn System", meta = (TitleProperty = "DebugDisplayName"))
     TArray<FRogueDirectorData> Directors;
 
     UPROPERTY(EditDefaultsOnly, Category = "Spawn System")
