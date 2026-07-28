@@ -7,6 +7,7 @@
 #include "RogueAICharacter.generated.h"
 
 struct FGameplayTag;
+class URogueMonsterData;
 class URogueActionSystemComponent;
 
 UCLASS(Abstract)
@@ -24,6 +25,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
     TObjectPtr<UAnimMontage> StunnedAnimation;
 
+    UPROPERTY(Transient)
+    TObjectPtr<URogueMonsterData> MonsterData;
+    
 public:
     ARogueAICharacter();
 
@@ -37,6 +41,22 @@ public:
     virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
         AActor* DamageCauser) override;
 
+    URogueActionSystemComponent* GetActionSystemComponent() const
+    {
+        return ActionSystemComponent;
+    }
+	
+    URogueMonsterData* GetMonsterData() const
+    {
+        return MonsterData;
+    }
+	
+    void SetMonsterData(URogueMonsterData* NewMonsterData)
+    {
+        check(MonsterData == nullptr);
+        MonsterData = NewMonsterData;
+    }
+    
 protected:
     FTimerHandle OverlayTimerHandle;
 };

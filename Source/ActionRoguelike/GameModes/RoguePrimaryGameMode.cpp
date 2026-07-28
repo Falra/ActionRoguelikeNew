@@ -6,8 +6,11 @@
 #include "ActionRoguelike.h"
 #include "RogueGameInstance.h"
 #include "RogueGameTypes.h"
+#include "RogueMonsterData.h"
+#include "ActionSystem/RogueActionSystemComponent.h"
 #include "AI/RogueAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ARoguePrimaryGameMode::ARoguePrimaryGameMode()
@@ -93,7 +96,7 @@ bool ARoguePrimaryGameMode::TrySpawnMonster(FRogueDirectorData& Director)
 
     if (Director.CurrentCredits < SelectedRow->SpawnCost)
     {
-        UE_LOG(LogGameMode, Log, TEXT("Not enough credits to spawn monster %s"), *SelectedRow->MonsterClass.GetAssetName());
+        UE_LOG(LogGameMode, Log, TEXT("Not enough credits to spawn monster %s"), *SelectedRow->MonsterData.GetAssetName());
         return false;
     }
 
@@ -128,20 +131,38 @@ void ARoguePrimaryGameMode::SpawnQueryCompleted(TSharedPtr<FEnvQueryResult> Quer
 {
     FVector SpawnLocation = QueryResult->GetItemAsLocation(0);
 
-    SelectedMonster->MonsterClass.LoadAsync(
+    SelectedMonster->MonsterData.LoadAsync(
         FLoadSoftObjectPathAsyncDelegate::CreateUObject(this, &ThisClass::OnMonsterClassLoaded, SpawnLocation, SelectedMonster));
 }
 
 void ARoguePrimaryGameMode::OnMonsterClassLoaded(const FSoftObjectPath& LoadedObjectPath, UObject* LoadedObject, FVector SpawnLocation,
     FMonsterSpawnData* SelectedMonster)
 {
-    const FActorSpawnParameters SpawnParams;
+    FActorSpawnParameters SpawnParams;
+    const FTransform SpawnTM = FTransform(SpawnLocation);
 
-    ARogueAICharacter* NewMonster = GetWorld()->SpawnActor<ARogueAICharacter>(SelectedMonster->MonsterClass.Get(), SpawnLocation,
-        FRotator::ZeroRotator, SpawnParams);
+    URogueMonsterData* MonsterData = SelectedMonster->MonsterData.Get();
+	
+    ARogueAICharacter* NewMonster = GetWorld()->SpawnActorDeferred<ARogueAICharacter>(MonsterData->MonsterClass, FTransform::Identity);
+	
+    NewMonster->SetMonsterData(MonsterData);
+	
+    // apply attribute overrides
+	
+    // Calls BeginPlay
+    UGameplayStatics::FinishSpawningActor(NewMonster, SpawnTM);
 
     UE_VLOG_SPHERE(this, LogGameMode, Log, SpawnLocation, 32.0f, FColor::Blue, TEXT("MonsterType: %s\nCost:%s"), 
-        *GetNameSafe(SelectedMonster->MonsterClass.Get()), *FString::SanitizeFloat(SelectedMonster->SpawnCost));
+        *GetNameSafe(MonsterData->MonsterClass), *FString::SanitizeFloat(SelectedMonster->SpawnCost));
+
+    // add buffs/debuffs, etc.
+	
+    URogueActionSystemComponent* ActionComp = NewMonster->GetActionSystemComponent();
+
+    for (const auto ActionClass : MonsterData->Actions)
+    {
+        ActionComp->GrantAction(ActionClass);
+    }
 
     // Set attributes, add buffs/debuffs, etc.
 }
