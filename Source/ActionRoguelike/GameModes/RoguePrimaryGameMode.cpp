@@ -63,9 +63,33 @@ bool ARoguePrimaryGameMode::TrySpawnMonster(FRogueDirectorData& Director)
     TArray<FMonsterSpawnData*> AllRows;
     Director.MonsterSpawnTable->GetAllRows("SelectMonster", AllRows);
 
-    const int32 SelectedIndex = FMath::RandRange(0, AllRows.Num() - 1);
+    //const int32 SelectedIndex = Director.RandomStream_MonsterSelection.RandRange(0, AllRows.Num()-1);
+    //FMonsterSpawnData* SelectedRow = AllRows[SelectedIndex];
 
-    FMonsterSpawnData* SelectedRow = AllRows[SelectedIndex];
+    float TotalWeights = 0.0f;
+    for (const FMonsterSpawnData* Row : AllRows)
+    {
+        TotalWeights += Row->SpawnWeight;
+    }
+	
+    const float SelectedWeight = Director.RandomStream_MonsterSelection.FRandRange(0.0f, TotalWeights);
+	
+    // row 0 - 10 weight (10 total)
+    // row 1 - 15 weight (25 total)
+    // row 2 - 5 weight (30 total)
+    // SelectedWeight (28) selects row 2, which ranges from 26-30 weight.
+
+    FMonsterSpawnData* SelectedRow = nullptr;
+    TotalWeights = 0.0f;
+    for (FMonsterSpawnData* Row : AllRows)
+    {
+        TotalWeights += Row->SpawnWeight;
+        if (SelectedWeight <= TotalWeights)
+        {
+            SelectedRow = Row;
+            break;
+        }
+    }	
 
     if (Director.CurrentCredits < SelectedRow->SpawnCost)
     {
@@ -83,6 +107,21 @@ bool ARoguePrimaryGameMode::TrySpawnMonster(FRogueDirectorData& Director)
 
     // EQS started successfully
     return QueryID != INDEX_NONE;
+}
+
+void ARoguePrimaryGameMode::StartPlay()
+{
+    Super::StartPlay();
+    
+    FRandomStream GlobalStream = FRandomStream(GlobalStartingSeed);
+
+    for (FRogueDirectorData& Director : Directors)
+    {
+        const int32 NewSeed = GlobalStream.RandRange(0, MAX_int32 - 1);
+        Director.RandomStream_MonsterSelection = FRandomStream(NewSeed);
+		
+        UE_LOG(LogGameMode, Log, TEXT("Seed: %d"), Director.RandomStream_MonsterSelection.GetInitialSeed());
+    }
 }
 
 void ARoguePrimaryGameMode::SpawnQueryCompleted(TSharedPtr<FEnvQueryResult> QueryResult, FMonsterSpawnData* SelectedMonster)

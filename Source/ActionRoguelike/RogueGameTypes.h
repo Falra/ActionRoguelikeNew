@@ -24,6 +24,9 @@ public:
     /* Points required by gamemode to spawn this unit. */
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     float SpawnCost = 0.0f;
+    
+    UPROPERTY(EditAnywhere)
+    float SpawnWeight = 1.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -50,4 +53,6 @@ public:
     float CurrentCredits = 0.0f;
 
     float NextTickTime = 0.0f;
+    
+    FRandomStream RandomStream_MonsterSelection;
 };
