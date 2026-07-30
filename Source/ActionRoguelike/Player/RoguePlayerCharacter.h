@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "GameFramework/Character.h"
 #include "RoguePlayerCharacter.generated.h"
 
@@ -15,7 +16,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS()
-class ACTIONROGUELIKE_API ARoguePlayerCharacter : public ACharacter
+class ACTIONROGUELIKE_API ARoguePlayerCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
 
@@ -23,6 +24,8 @@ public:
     // Sets default values for this character's properties
     ARoguePlayerCharacter();
 
+    virtual FGenericTeamId GetGenericTeamId() const override;
+    
 protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Death")

@@ -16,6 +16,8 @@ class ACTIONROGUELIKE_API ARogueAIController : public AAIController
 public:
 
     ARogueAIController();
+    
+    virtual void PreRegisterAllComponents() override;
 
 protected:
 

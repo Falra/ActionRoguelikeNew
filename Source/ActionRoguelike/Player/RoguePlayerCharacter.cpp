@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "GameplayTagContainer.h"
+#include "RogueGameTypes.h"
 #include "SharedGameplayTags.h"
 #include "ActionSystem/RogueActionSystemComponent.h"
 #include "ActionSystem/RogueAttributeSet.h"
@@ -27,6 +28,11 @@ ARoguePlayerCharacter::ARoguePlayerCharacter()
     
     ActionSystemComponent = CreateDefaultSubobject<URogueActionSystemComponent>(TEXT("ActionSystemComp"));
     ActionSystemComponent->SetDefaultAttributeSet(URoguePlayerAttributeSet::StaticClass());
+}
+
+FGenericTeamId ARoguePlayerCharacter::GetGenericTeamId() const
+{
+    return FGenericTeamId(TEAM_ID_PLAYERS);	
 }
 
 void ARoguePlayerCharacter::Move(const FInputActionValue& InValue)

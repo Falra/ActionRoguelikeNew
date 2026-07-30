@@ -65,6 +65,16 @@ void ARogueAICharacter::PostInitializeComponents()
     ActionSystemComponent->GameplayTagUpdated.AddDynamic(this, &ThisClass::OnGameplayTagUpdated);
 }
 
+FGenericTeamId ARogueAICharacter::GetGenericTeamId() const
+{
+    if (const auto* AIC = GetController<AAIController>())
+    {
+        return AIC->GetGenericTeamId();
+    }
+	
+    return FGenericTeamId::NoTeam;
+}
+
 void ARogueAICharacter::BeginPlay()
 {
     Super::BeginPlay();
@@ -87,7 +97,8 @@ float ARogueAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 {
     const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-    if (IsValid(EventInstigator))
+    const ETeamAttitude::Type Attitude = GetTeamAttitudeTowards(*EventInstigator);
+    if (IsValid(EventInstigator) && Attitude != ETeamAttitude::Friendly)
     {
         UAISense_Damage::ReportDamageEvent(this, this, EventInstigator->GetPawn(), FMath::Abs(ActualDamage), 
             EventInstigator->GetPawn()->GetActorLocation(), GetActorLocation());

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "GameFramework/PlayerController.h"
 #include "RoguePlayerController.generated.h"
 
@@ -13,13 +14,15 @@ class URogueInteractionComponent;
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API ARoguePlayerController : public APlayerController
+class ACTIONROGUELIKE_API ARoguePlayerController : public APlayerController, public IGenericTeamAgentInterface
 {
     GENERATED_BODY()
 
 public:
     
     ARoguePlayerController();
+    
+    virtual FGenericTeamId GetGenericTeamId() const override;
     
 protected:
     
