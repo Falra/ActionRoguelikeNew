@@ -19,6 +19,9 @@ public:
 
 protected:
 
+    UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<UAIPerceptionComponent> PerceptionComp;
+	
     UPROPERTY(EditDefaultsOnly, Category = "AI")
     TObjectPtr<UBehaviorTree> BehaviorTree;
 
