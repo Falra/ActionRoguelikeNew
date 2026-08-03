@@ -19,7 +19,10 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
-    TSubclassOf<UDamageType> DmgTypeClass;
+    float AttackDamage = 51.f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    float ImpulseIntensity = 200000.f;
 
     /* Debuff to apply to the HitActor */
     UPROPERTY(EditDefaultsOnly, Category = "Damage")

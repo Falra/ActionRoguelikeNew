@@ -23,6 +23,10 @@ protected:
     UFUNCTION()
     void OnGameplayTagUpdated(FGameplayTag UpdatedTag, int32 NewCount);
 
+    void OnHealthChanged(FGameplayTag AttributeTag, float NewHealth, float OldHealth);
+	
+    void HandleKilled();
+    
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
     TObjectPtr<UAnimMontage> StunnedAnimation;
 
@@ -34,7 +38,7 @@ public:
 
     virtual void PostInitializeComponents() override;
 
-    virtual FGenericTeamId GetGenericTeamId() const;
+    virtual FGenericTeamId GetGenericTeamId() const override;
     
     virtual void BeginPlay() override;
 
@@ -60,5 +64,7 @@ public:
     }
     
 protected:
+    bool bIsDead = false;
+    
     FTimerHandle OverlayTimerHandle;
 };

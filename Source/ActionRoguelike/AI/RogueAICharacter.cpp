@@ -9,8 +9,54 @@
 #include "ActionSystem/RogueActionSystemComponent.h"
 #include "ActionSystem/RogueAttributeSet.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISense_Damage.h"
+
+ARogueAICharacter::ARogueAICharacter()
+{
+    ActionSystemComponent = CreateDefaultSubobject<URogueActionSystemComponent>(TEXT("ActionSystemComponent"));
+    ActionSystemComponent->SetDefaultAttributeSet(URogueMonsterAttributeSet::StaticClass());
+    
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+}
+
+void ARogueAICharacter::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    GetMesh()->SetOverlayMaterialMaxDrawDistance(1);
+
+    ActionSystemComponent->GameplayTagUpdated.AddDynamic(this, &ThisClass::OnGameplayTagUpdated);
+    ActionSystemComponent->GetAttributeListener(SharedGameplayTags::Attribute_Health).AddUObject(this, &ThisClass::OnHealthChanged);
+}
+
+FGenericTeamId ARogueAICharacter::GetGenericTeamId() const
+{
+    if (const auto* AIC = GetController<AAIController>())
+    {
+        return AIC->GetGenericTeamId();
+    }
+	
+    return FGenericTeamId::NoTeam;
+}
+
+void ARogueAICharacter::BeginPlay()
+{
+    Super::BeginPlay();
+
+    URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
+    check(GI);
+    GI->AliveMonsters.Add(this);
+}
+
+void ARogueAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
+    GI->AliveMonsters.RemoveSingleSwap(this, EAllowShrinking::No);
+
+    Super::EndPlay(EndPlayReason);
+}
 
 void ARogueAICharacter::OnGameplayTagUpdated(FGameplayTag UpdatedTag, int32 NewCount)
 {
@@ -48,48 +94,34 @@ void ARogueAICharacter::OnGameplayTagUpdated(FGameplayTag UpdatedTag, int32 NewC
     }
 }
 
-ARogueAICharacter::ARogueAICharacter()
+
+void ARogueAICharacter::OnHealthChanged(FGameplayTag AttributeTag, float NewHealth, float OldHealth)
 {
-    ActionSystemComponent = CreateDefaultSubobject<URogueActionSystemComponent>(TEXT("ActionSystemComponent"));
-    ActionSystemComponent->SetDefaultAttributeSet(URogueMonsterAttributeSet::StaticClass());
-    
-    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-}
-
-void ARogueAICharacter::PostInitializeComponents()
-{
-    Super::PostInitializeComponents();
-
-    GetMesh()->SetOverlayMaterialMaxDrawDistance(1);
-
-    ActionSystemComponent->GameplayTagUpdated.AddDynamic(this, &ThisClass::OnGameplayTagUpdated);
-}
-
-FGenericTeamId ARogueAICharacter::GetGenericTeamId() const
-{
-    if (const auto* AIC = GetController<AAIController>())
+    if (NewHealth <= KINDA_SMALL_NUMBER && !bIsDead)
     {
-        return AIC->GetGenericTeamId();
+        HandleKilled();
     }
+}
+
+void ARogueAICharacter::HandleKilled()
+{
+    bIsDead = true;
 	
-    return FGenericTeamId::NoTeam;
-}
-
-void ARogueAICharacter::BeginPlay()
-{
-    Super::BeginPlay();
-
-    URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
-    check(GI);
-    GI->AliveMonsters.Add(this);
-}
-
-void ARogueAICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
     URogueGameInstance* GI = GetGameInstance<URogueGameInstance>();
     GI->AliveMonsters.RemoveSingleSwap(this, EAllowShrinking::No);
-
-    Super::EndPlay(EndPlayReason);
+	
+    const AAIController* AIC = GetController<AAIController>();
+    AIC->GetBrainComponent()->StopLogic("Killed");
+	
+    GetMesh()->bPauseAnims = true;
+	
+    GetMesh()->SetCollisionProfileName("Ragdoll");
+    GetMesh()->SetAllBodiesSimulatePhysics(true);
+	
+    GetCharacterMovement()->DisableMovement();
+    GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+    SetLifeSpan(10.f);
 }
 
 float ARogueAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
