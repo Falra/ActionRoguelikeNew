@@ -121,6 +121,9 @@ void ARogueAICharacter::HandleKilled()
     GetCharacterMovement()->DisableMovement();
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
+    // Drop Loot!
+    GetActionSystemComponent()->StartAction(SharedGameplayTags::Action_DropLoot);
+    
     SetLifeSpan(10.f);
 }
 

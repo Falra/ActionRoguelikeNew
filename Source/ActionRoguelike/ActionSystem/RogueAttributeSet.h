@@ -99,6 +99,9 @@ public:
 
     UPROPERTY(EditAnywhere, Category = "Resources")
     FRogueAttribute Rage;
+    
+    UPROPERTY(EditAnywhere, Category = "Resources")
+    FRogueAttribute Coins;
 };
 
 UCLASS()
