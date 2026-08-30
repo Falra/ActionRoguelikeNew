@@ -3,8 +3,10 @@
 
 #include "RogueAICharacter.h"
 
+#include "ActionRoguelike.h"
 #include "AIController.h"
 #include "RogueGameInstance.h"
+#include "RogueMonsterData.h"
 #include "SharedGameplayTags.h"
 #include "ActionSystem/RogueActionSystemComponent.h"
 #include "ActionSystem/RogueAttributeSet.h"
@@ -12,6 +14,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AISense_Damage.h"
+#include "UI/RogueWorldUserWidget.h"
 
 ARogueAICharacter::ARogueAICharacter()
 {
@@ -124,6 +127,12 @@ void ARogueAICharacter::HandleKilled()
     // Drop Loot!
     GetActionSystemComponent()->StartAction(SharedGameplayTags::Action_DropLoot);
     
+    if (HealthBarInst)
+    {
+        HealthBarInst->RemoveFromParent();
+        HealthBarInst = nullptr;
+    }
+    
     SetLifeSpan(10.f);
 }
 
@@ -141,6 +150,11 @@ float ARogueAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
     
     ActionSystemComponent->ApplyAttributeChange(SharedGameplayTags::Attribute_Health, -ActualDamage, Base);
 
+    if (!bIsDead && HealthBarInst == nullptr)
+    {
+        CreateHealthBar();
+    }
+    
     GetMesh()->SetOverlayMaterialMaxDrawDistance(0);
 
     //GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->TimeSeconds);
@@ -154,4 +168,24 @@ float ARogueAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
     // @todo: handle death, remove from AliveMonsters array
 
     return ActualDamage;
+}
+
+
+void ARogueAICharacter::CreateHealthBar()
+{
+    if (IsValid(HealthBarInst))
+    {
+        check(HealthBarInst->IsInViewport())
+        return;
+    }
+	
+    if (MonsterData == nullptr || MonsterData->HealthWidgetClass == nullptr)
+    {
+        UE_LOG(LogGame, Warning, TEXT("No HealthWidgetClass available in MonsterData (%s) for '%s'"), *GetNameSafe(MonsterData), *GetName());
+        return;
+    }
+	
+    HealthBarInst = CreateWidget<URogueWorldUserWidget>(GetWorld(), MonsterData->HealthWidgetClass);
+    HealthBarInst->OwningComponent = GetRootComponent();
+    HealthBarInst->AddToViewport();
 }
