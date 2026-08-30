@@ -17,6 +17,8 @@ class ACTIONROGUELIKE_API URogueWorldUserWidget : public UUserWidget
     GENERATED_BODY()
 
 public:
+    void AddToRootCanvas();
+    
     UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn))
     TObjectPtr<USceneComponent> OwningComponent;
 
