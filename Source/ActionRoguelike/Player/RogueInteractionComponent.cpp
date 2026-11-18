@@ -22,6 +22,13 @@ void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickT
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     
     const APlayerController* PC = CastChecked<APlayerController>(GetOwner());
+    
+    if (!PC->IsLocalController())
+    {
+        // @todo: disable ticking
+        return;
+    }
+    
     const FVector Center = PC->GetPawn()->GetActorLocation();
     const FVector CameraLocation = PC->PlayerCameraManager->GetCameraLocation();
     
@@ -83,8 +90,13 @@ void URogueInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 void URogueInteractionComponent::Interact() const
 {
-    if (SelectedActor && SelectedActor->Implements<URogueInteractionInterface>())
+    ServerInteract(SelectedActor);
+}
+
+void URogueInteractionComponent::ServerInteract_Implementation(AActor* InteractWith) const
+{
+    if (InteractWith && InteractWith->Implements<URogueInteractionInterface>())
     {
-        IRogueInteractionInterface::Execute_Interact(SelectedActor);
+        IRogueInteractionInterface::Execute_Interact(InteractWith);
     }
 }

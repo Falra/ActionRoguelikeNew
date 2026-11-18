@@ -32,5 +32,8 @@ protected:
     
     UPROPERTY(Transient)
     TObjectPtr<AActor> SelectedActor;
+    
+    UFUNCTION(Server, Reliable)
+    void ServerInteract(AActor* InteractWith) const;
 
 };
