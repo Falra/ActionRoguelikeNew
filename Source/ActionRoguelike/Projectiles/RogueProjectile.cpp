@@ -29,6 +29,8 @@ ARogueProjectile::ARogueProjectile()
     LoopedAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("LoopedAudioComp"));
     LoopedAudioComponent->SetupAttachment(SphereComponent);
     
+    bReplicates = true;
+    
     InitialLifeSpan = 30.0f;
 }
 
