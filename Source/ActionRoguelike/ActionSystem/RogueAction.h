@@ -67,12 +67,19 @@ public:
     }
 #endif
     
+    virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
+	
+    virtual bool IsSupportedForNetworking() const override { return true; }
+    
 protected:
 
     /* GameTime until the Action is available again */
     UPROPERTY(Transient)
     float CooldownUntil = 0;
 
-    UPROPERTY(Transient)
+    UPROPERTY(Transient, ReplicatedUsing=OnRep_IsRunning)
     bool bIsRunning = false;
+    
+    UFUNCTION()
+    void OnRep_IsRunning();
 };

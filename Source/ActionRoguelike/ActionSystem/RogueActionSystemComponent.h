@@ -110,7 +110,7 @@ protected:
     
     TMap<FGameplayTag, TArray<FOnAttributeDynamicChanged>> AttributeDynamicListeners;
     
-    UPROPERTY(EditAnywhere, Category = "ActionSystem")
+    UPROPERTY(EditAnywhere, Replicated, Category = "ActionSystem")
     TArray<TSubclassOf<URogueAction>> DefaultActions;
     
     UPROPERTY(BlueprintReadOnly, Category = "ActionSystem")
