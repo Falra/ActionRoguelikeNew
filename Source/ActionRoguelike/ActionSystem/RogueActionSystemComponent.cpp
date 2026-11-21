@@ -236,6 +236,11 @@ FOnAttributeChanged& URogueActionSystemComponent::GetAttributeListener(FGameplay
 
 void URogueActionSystemComponent::StartAction(FGameplayTag InActionName)
 {
+    ServerStartAction(InActionName);
+}
+
+void URogueActionSystemComponent::ServerStartAction_Implementation(FGameplayTag InActionName)
+{
     for (const auto& Action : Actions)
     {
         if (Action->GetActionName() == InActionName)
@@ -252,6 +257,11 @@ void URogueActionSystemComponent::StartAction(FGameplayTag InActionName)
 }
 
 void URogueActionSystemComponent::StopAction(FGameplayTag InActionName)
+{
+    ServerStopAction(InActionName);
+}
+
+void URogueActionSystemComponent::ServerStopAction_Implementation(FGameplayTag InActionName)
 {
     for (const auto& Action : Actions)
     {
